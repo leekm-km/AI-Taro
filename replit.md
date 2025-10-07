@@ -50,10 +50,15 @@ AI Taro Oppa (타로오빠) is a multi-language tarot card reading application b
 - 건강운 (Health)
 
 ### User Flow
-1. **Language Selection** - Choose preferred language
+1. **Language Selection** - Choose preferred language (한국어/English/中文/ไทย)
 2. **Character Selection** - Pick one of 5 tarot readers
-3. **Question Input** - Enter question and select fortune category
-4. **Tarot Reading** - Receive personalized AI-generated reading
+3. **Fortune Category Selection** - Choose from 7 fortune categories
+4. **Question Input** - Enter your question
+5. **Card Selection** - Pick 3 cards from 16 displayed cards
+6. **Card Reveal** - Watch your selected cards flip with 3D animation
+7. **Advertisement** - 3-second countdown with skip option
+8. **Tarot Reading** - Receive detailed AI-generated reading
+9. **Follow-up** - Ask additional questions (with ad gate)
 
 ## Architecture
 
@@ -117,15 +122,22 @@ The app is configured for **autoscale deployment**:
 
 ## Recent Changes (October 7, 2025)
 
-### 🎴 Major Overhaul: Full 78-Card Tarot System with Enhanced Workflow
+### 🎴 Latest Update: Enhanced User Flow with Card Reveal & Advertisement Integration
 
-**New User Flow:**
+**Complete User Flow:**
 1. Language Selection (한국어/English/中文/ไทย)
 2. Character Selection (5 unique personas)
-3. **Fortune Category Selection** (NEW) - Choose from 7 categories
-4. **Card Selection** (NEW) - Pick 3 from 16 displayed cards
-5. Question Input
-6. AI-Powered Tarot Reading
+3. **Fortune Category Selection** - Choose from 7 categories
+4. **Question Input** (BEFORE card selection)
+5. **Card Selection** - Pick 3 from 16 displayed cards
+6. **Card Reveal Animation** (NEW) - Sequential 3D flip reveals with card info
+7. **Advertisement Gate** (NEW) - 3-second countdown with skip option
+8. **Detailed Tarot Reading** - AI-powered comprehensive analysis
+9. **Follow-up Questions** (NEW) - Additional questions with ad integration
+
+---
+
+### 🎴 Major Overhaul: Full 78-Card Tarot System with Enhanced Workflow
 
 ---
 
@@ -172,15 +184,46 @@ Dramatically strengthened GPT prompt engineering:
 - **Linhua** (린화): "후후~", "어머~" - Playful, mysterious fortune teller
 - **Thimble Oakroot** (팀블 오크루트): "~답니다" - Warm naturalist with practical wisdom
 
-#### 5. **Backend API Enhancements**
+#### 5. **Card Reveal Animation Page**
+- **Sequential 3D flip animation**: Cards flip one by one with Transform.rotateY
+- **Card information display**: 
+  - Card name (English + Korean)
+  - Orientation badge (정방향 ↑ / 역방향 ↓)
+  - Keywords
+  - Detailed meaning based on orientation
+- **Smooth transitions**: 800ms flip + 300ms pause between cards
+- **Ready for card images**: Placeholder structure for future image assets
+
+#### 6. **Advertisement Integration**
+- **AdPlaceholderPage**: 3-second countdown timer
+- **Skip functionality**: Users can skip after timer completes
+- **API call during ad**: Tarot reading generated while ad displays
+- **Follow-up ad gate**: Additional questions also require viewing ad
+- **Smooth UX**: Loading indicator and graceful error handling
+
+#### 7. **Enhanced GPT Prompts**
+- **Lengthy detailed readings**: 
+  - Individual card analysis (200-300 characters each)
+  - Comprehensive synthesis (300-400 characters)
+  - Total ~1000+ characters
+- **Structured format**: 
+  - Introduction
+  - Card 1 interpretation
+  - Card 2 interpretation
+  - Card 3 interpretation
+  - Overall synthesis and advice
+- **Category-focused**: Each fortune category has specific AI focus
+- **Strict tone enforcement**: System prompts force consistent character speech patterns
+- **Context-aware**: AI receives actual card meanings, not just positions
+
+#### 8. **Backend API Enhancements**
 - **SelectedCardData model**: Receives full card information
   - Card ID, name (English + Korean)
   - Orientation (upright/reversed)
   - Meaning (context-aware based on orientation)
   - Keywords
-- **Category-focused prompts**: Each fortune category has specific AI focus
-- **Strict tone enforcement**: System prompts force consistent character speech patterns
-- **Detailed card interpretation**: AI receives actual card meanings, not just positions
+- **TarotRequest model**: Complete request structure with all user context
+- **Detailed card interpretation**: AI receives actual card meanings for contextual responses
 
 ---
 
@@ -190,10 +233,16 @@ Dramatically strengthened GPT prompt engineering:
 - `TarotCard` model: Full card data structure with fromJson factory
 - `SelectedCard` model: Combines card + orientation (isReversed bool)
 - `FortuneCategory` model: Multilingual category data
-- `FortuneCategoryPage`: New page between character and card selection
+- `FortuneCategoryPage`: Page between character and question input
+- `QuestionPage`: User enters question before card selection
+- `CardSelectionPage`: Pick 3 cards from shuffled 16-card display
+- `CardRevealPage`: Sequential 3D flip animation with card details
+- `AdPlaceholderPage`: 3-second countdown with skip button + API call
+- `ResultPage`: Displays reading with follow-up question button
 - JSON asset loading: rootBundle.loadString('assets/tarot_cards.json')
 - Shuffle logic: Random().shuffle() on full 78-card deck
 - Orientation randomization: Random().nextBool() for each selected card
+- Clean UI: Debug text removed, proper card counting (N / 3)
 
 **Backend (FastAPI):**
 - `SelectedCardData` Pydantic model validates incoming card data
