@@ -328,72 +328,82 @@ class FortuneCategoryPage extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.all(16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 1.2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-              ),
-              itemCount: fortuneCategories.length,
-              itemBuilder: (context, index) {
-                final category = fortuneCategories[index];
-                return InkWell(
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => QuestionPage(
-                          language: language,
-                          persona: persona,
-                          category: category,
-                        ),
-                      ),
-                    );
-                  },
-                  child: Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            persona.color.withOpacity(0.1),
-                            persona.color.withOpacity(0.05),
-                          ],
-                        ),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            category.icon,
-                            size: 48,
-                            color: persona.color,
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            category.getName(language),
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: persona.color,
+          const SizedBox(height: 24),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Row(
+              children: fortuneCategories.map((category) {
+                return Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => QuestionPage(
+                              language: language,
+                              persona: persona,
+                              category: category,
                             ),
                           ),
-                        ],
+                        );
+                      },
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              persona.color.withOpacity(0.15),
+                              persona.color.withOpacity(0.08),
+                            ],
+                          ),
+                          border: Border.all(
+                            color: persona.color.withOpacity(0.3),
+                            width: 2,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: persona.color.withOpacity(0.1),
+                              blurRadius: 6,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              category.icon,
+                              size: 24,
+                              color: persona.color,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              category.getName(language),
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: persona.color,
+                                height: 1.1,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 );
-              },
+              }).toList(),
             ),
           ),
+          const Spacer(),
         ],
       ),
     );
@@ -571,6 +581,7 @@ class _CardSelectionPageState extends State<CardSelectionPage>
   late AnimationController _animationController;
   final Set<int> _selectedIndices = {};
   final int _cardsToSelect = 3;
+  int? _hoveredIndex;
   
   List<TarotCard> _allCards = [];
   List<TarotCard> _shuffledDeck = [];
@@ -767,82 +778,116 @@ class _CardSelectionPageState extends State<CardSelectionPage>
             ),
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
 
           Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.all(16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                childAspectRatio: 0.65,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-              ),
-              itemCount: _displayedCards.length,
-              itemBuilder: (context, index) {
-                final delay = index * 0.04;
-                final intervalEnd = (delay + 0.3).clamp(0.0, 1.0);
-                final animation = Tween<double>(begin: 0.0, end: 1.0).animate(
-                  CurvedAnimation(
-                    parent: _animationController,
-                    curve: Interval(
-                      delay,
-                      intervalEnd,
-                      curve: Curves.easeOutBack,
-                    ),
-                  ),
-                );
+            child: Center(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final cardWidth = 80.0;
+                  final cardHeight = 120.0;
+                  final totalCards = _displayedCards.length;
+                  final maxAngle = 50.0;
+                  final angleStep = (maxAngle * 2) / (totalCards - 1);
 
-                return AnimatedBuilder(
-                  animation: animation,
-                  builder: (context, child) {
-                    final scale = animation.value;
-                    final opacity = animation.value;
-
-                    return Transform.scale(
-                      scale: scale,
-                      child: Opacity(
-                        opacity: opacity,
-                        child: child,
-                      ),
-                    );
-                  },
-                  child: GestureDetector(
-                    onTap: () => _toggleCard(index),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      decoration: BoxDecoration(
-                        color: _selectedIndices.contains(index)
-                            ? widget.persona.color
-                            : Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: widget.persona.color,
-                          width: _selectedIndices.contains(index) ? 3 : 1,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: _selectedIndices.contains(index)
-                                ? widget.persona.color.withOpacity(0.4)
-                                : Colors.black.withOpacity(0.1),
-                            blurRadius: _selectedIndices.contains(index) ? 8 : 4,
-                            offset: const Offset(0, 2),
+                  return Stack(
+                    clipBehavior: Clip.none,
+                    children: List.generate(totalCards, (index) {
+                      final delay = index * 0.04;
+                      final intervalEnd = (delay + 0.3).clamp(0.0, 1.0);
+                      final animation = Tween<double>(begin: 0.0, end: 1.0).animate(
+                        CurvedAnimation(
+                          parent: _animationController,
+                          curve: Interval(
+                            delay,
+                            intervalEnd,
+                            curve: Curves.easeOutBack,
                           ),
-                        ],
-                      ),
-                      child: Center(
-                        child: Icon(
-                          Icons.auto_awesome,
-                          color: _selectedIndices.contains(index)
-                              ? Colors.white
-                              : widget.persona.color,
-                          size: 32,
                         ),
-                      ),
-                    ),
-                  ),
-                );
-              },
+                      );
+
+                      final angle = -maxAngle + (index * angleStep);
+                      final radians = angle * (3.14159 / 180);
+                      final radius = constraints.maxWidth * 0.4;
+                      
+                      final x = (constraints.maxWidth / 2) + (radius * sin(radians)) - (cardWidth / 2);
+                      final y = (constraints.maxHeight * 0.6) - (radius * cos(radians)) - (cardHeight / 2);
+
+                      final isHovered = _hoveredIndex == index;
+                      final isSelected = _selectedIndices.contains(index);
+
+                      return AnimatedBuilder(
+                        animation: animation,
+                        builder: (context, child) {
+                          final scale = animation.value;
+                          final opacity = animation.value;
+
+                          return Positioned(
+                            left: x,
+                            top: y,
+                            child: Transform.scale(
+                              scale: scale,
+                              child: Opacity(
+                                opacity: opacity,
+                                child: child,
+                              ),
+                            ),
+                          );
+                        },
+                        child: MouseRegion(
+                          onEnter: (_) => setState(() => _hoveredIndex = index),
+                          onExit: (_) => setState(() => _hoveredIndex = null),
+                          child: GestureDetector(
+                            onTap: () => _toggleCard(index),
+                            child: Transform.rotate(
+                              angle: radians,
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                margin: EdgeInsets.only(
+                                  bottom: isHovered && !isSelected ? 15.0 : 0.0,
+                                ),
+                                width: cardWidth,
+                                height: cardHeight,
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? widget.persona.color
+                                      : Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: widget.persona.color,
+                                    width: isSelected ? 3 : (isHovered ? 2 : 1),
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: isSelected
+                                          ? widget.persona.color.withOpacity(0.5)
+                                          : (isHovered
+                                              ? widget.persona.color.withOpacity(0.3)
+                                              : Colors.black.withOpacity(0.1)),
+                                      blurRadius: isSelected ? 12 : (isHovered ? 10 : 4),
+                                      offset: const Offset(0, 4),
+                                      spreadRadius: isSelected ? 2 : 0,
+                                    ),
+                                  ],
+                                ),
+                                child: Center(
+                                  child: Icon(
+                                    Icons.auto_awesome,
+                                    color: isSelected
+                                        ? Colors.white
+                                        : widget.persona.color,
+                                    size: 28,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  );
+                },
+              ),
             ),
           ),
 
