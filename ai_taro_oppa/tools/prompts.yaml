@@ -1,0 +1,348 @@
+width: 640
+height: 960
+steps: 20
+cfg: 7.0
+sampler: "DPM++ 2M Karras"
+timeout_sec: 900
+
+common: >
+  ornate tarot card illustration, sharp clean line art, centered composition,
+  detailed symbolism, consistent deck style, high resolution print quality,
+  readable Korean title at top, full ornate border
+
+negative: >
+  blurry, lowres, noise, messy composition, pastel overload, haze, fog,
+  low contrast, overexposed, underexposed, washed out, desaturated,
+  missing symbols, indistinct objects, cropped subject, off-frame,
+  duplicate heads, extra limbs, bad hands, bad anatomy, distorted face,
+  watermark, logo, jpeg artifacts, illegible text, text box
+
+generate_minors: true
+
+# -------- 22 Major Arcana (symbols made explicit) --------
+major_cards:
+  - id: "major_00"
+    slug: "fool"
+    title_ko: "바보"
+    seed: 10001
+    prompt: >
+      title text: '바보',
+      youth at a cliff edge, small knapsack on staff, white rose in hand,
+      little dog at heels, bright sun in sky,
+      carefree pose of new beginnings, ornate tarot border, sharp details
+
+  - id: "major_01"
+    slug: "magician"
+    title_ko: "마법사"
+    seed: 10002
+    prompt: >
+      title text: '마법사',
+      magician at ornate table with wand cup sword pentacle clearly visible,
+      infinity symbol above head,
+      right hand raised to sky, left hand pointing to ground,
+      bright garden background, ornate tarot border, crisp line art
+
+  - id: "major_02"
+    slug: "high_priestess"
+    title_ko: "여사제"
+    seed: 10003
+    prompt: >
+      title text: '여사제',
+      serene priestess seated between pillars B and J,
+      veil with pomegranates, crescent moon at feet,
+      scroll marked TORA, calm mystical aura, ornate border, sharp detail
+
+  - id: "major_03"
+    slug: "empress"
+    title_ko: "여제"
+    seed: 10004
+    prompt: >
+      title text: '여제',
+      crowned empress on cushioned throne with scepter,
+      wheat field and lush forest, robe with pomegranates,
+      fertility and abundance, ornate border, rich colors
+
+  - id: "major_04"
+    slug: "emperor"
+    title_ko: "황제"
+    seed: 10005
+    prompt: >
+      title text: '황제',
+      stern emperor on stone throne with ram heads,
+      orb and scepter, mountains behind, authority and order,
+      ornate border, clear structure, sharp line art
+
+  - id: "major_05"
+    slug: "hierophant"
+    title_ko: "교황"
+    seed: 10006
+    prompt: >
+      title text: '교황',
+      hierophant blessing between pillars, triple crown and staff,
+      two acolytes kneeling, crossed keys motif,
+      sacred interior, ornate border, solemn atmosphere
+
+  - id: "major_06"
+    slug: "lovers"
+    title_ko: "연인"
+    seed: 10007
+    prompt: >
+      title text: '연인',
+      angel above a man and woman, radiant sun,
+      tree of knowledge with serpent, tree of life,
+      blessing of union, ornate border, harmonious colors
+
+  - id: "major_07"
+    slug: "chariot"
+    title_ko: "전차"
+    seed: 10008
+    prompt: >
+      title text: '전차',
+      armored charioteer beneath star canopy,
+      black and white sphinxes pulling the chariot,
+      city in the distance, victory and will, ornate border
+
+  - id: "major_08"
+    slug: "strength"
+    title_ko: "힘"
+    seed: 10009
+    prompt: >
+      title text: '힘',
+      maiden gently closing lion's mouth,
+      infinity symbol above head, flower garland,
+      calm control and compassion, ornate border, bright garden
+
+  - id: "major_09"
+    slug: "hermit"
+    title_ko: "은둔자"
+    seed: 10010
+    prompt: >
+      title text: '은둔자',
+      old hermit on mountain peak, lantern with shining star,
+      staff in hand, dusk lighting, solitude and wisdom,
+      ornate border, crisp silhouette
+
+  - id: "major_10"
+    slug: "wheel_of_fortune"
+    title_ko: "운명의 수레바퀴"
+    seed: 10011
+    prompt: >
+      title text: '운명의 수레바퀴',
+      large wheel with letters and alchemical symbols,
+      sphinx atop, serpent descending, Anubis ascending,
+      four winged creatures in corners, ornate border, dynamic
+
+  - id: "major_11"
+    slug: "justice"
+    title_ko: "정의"
+    seed: 10012
+    prompt: >
+      title text: '정의',
+      crowned figure seated between pillars with sword upright and scales,
+      symmetry and balance, calm fairness,
+      ornate border, precise lines
+
+  - id: "major_12"
+    slug: "hanged_man"
+    title_ko: "매달린 사람"
+    seed: 10013
+    prompt: >
+      title text: '매달린 사람',
+      man hanging upside down by one foot from a tree,
+      glowing halo, one leg bent, serene expression,
+      surrender and new perspective, ornate border
+
+  - id: "major_13"
+    slug: "death"
+    title_ko: "죽음"
+    seed: 10014
+    prompt: >
+      title text: '죽음',
+      skeletal rider on white horse holding black flag with white rose,
+      figures reacting, sun rising over river,
+      transformation not horror, ornate border, clear symbols
+
+  - id: "major_14"
+    slug: "temperance"
+    title_ko: "절제"
+    seed: 10015
+    prompt: >
+      title text: '절제',
+      angel mixing water between two cups,
+      one foot on land one in water, path to mountains,
+      golden aura, harmony and balance, ornate border
+
+  - id: "major_15"
+    slug: "devil"
+    title_ko: "악마"
+    seed: 10016
+    prompt: >
+      title text: '악마',
+      horned devil on pedestal, man and woman chained loosely,
+      inverted torch, cavern darkness,
+      temptation and bondage, ornate border, clear silhouettes
+
+  - id: "major_16"
+    slug: "tower"
+    title_ko: "탑"
+    seed: 10017
+    prompt: >
+      title text: '탑',
+      lightning strikes tall tower, flames bursting,
+      crowned top falling, figures tumbling,
+      sudden change and shock, ornate border, dramatic contrast
+
+  - id: "major_17"
+    slug: "star"
+    title_ko: "별"
+    seed: 10018
+    prompt: >
+      title text: '별',
+      woman kneeling by pool pouring water to pool and land,
+      one large star and seven small, serene night sky,
+      hope and renewal, ornate border, clean highlights
+
+  - id: "major_18"
+    slug: "moon"
+    title_ko: "달"
+    seed: 10019
+    prompt: >
+      title text: '달',
+      full moon with face, two towers,
+      dog and wolf howling, crayfish emerging from water,
+      winding path, dreamlike mystery, ornate border
+
+  - id: "major_19"
+    slug: "sun"
+    title_ko: "태양"
+    seed: 10020
+    prompt: >
+      title text: '태양',
+      radiant sun, child on white horse with red banner,
+      sunflowers behind, joy and clarity,
+      ornate border, bright high contrast
+
+  - id: "major_20"
+    slug: "judgement"
+    title_ko: "심판"
+    seed: 10021
+    prompt: >
+      title text: '심판',
+      angel blowing trumpet, people rising from coffins,
+      mountains behind, divine call and awakening,
+      ornate border, crisp forms
+
+  - id: "major_21"
+    slug: "world"
+    title_ko: "세계"
+    seed: 10022
+    prompt: >
+      title text: '세계',
+      nude figure dancing with scarf within laurel wreath,
+      four living creatures in corners (lion bull eagle angel),
+      completion and unity, ornate border, symmetrical
+
+# -------- Minor Arcana templates (auto expand to 56) --------
+minors:
+  suits:
+    wands:
+      title_ko: "완드"
+      visual: "wooden wand, sprouting leaves, warm fire hues, dynamic motion"
+      seed_base: 41000
+    cups:
+      title_ko: "컵"
+      visual: "golden chalice, flowing water, cool blue hues, gentle waves"
+      seed_base: 42000
+    swords:
+      title_ko: "소드"
+      visual: "shining steel sword, clear sky, sharp highlights, wind motif"
+      seed_base: 43000
+    pentacles:
+      title_ko: "펜타클"
+      visual: "golden pentacle coin, earthy tones, vines and fruits, grounded feel"
+      seed_base: 44000
+  ranks:
+    - {
+        key: "ace",
+        title_ko: "에이스",
+        visual: "single emblem in hand from cloud",
+        seed_offset: 1,
+      }
+    - {
+        key: "two",
+        title_ko: "2",
+        visual: "two emblems in balance, crossroads",
+        seed_offset: 2,
+      }
+    - {
+        key: "three",
+        title_ko: "3",
+        visual: "three emblems in collaboration",
+        seed_offset: 3,
+      }
+    - {
+        key: "four",
+        title_ko: "4",
+        visual: "four emblems in stable structure, pause",
+        seed_offset: 4,
+      }
+    - {
+        key: "five",
+        title_ko: "5",
+        visual: "five emblems in conflict or challenge",
+        seed_offset: 5,
+      }
+    - {
+        key: "six",
+        title_ko: "6",
+        visual: "six emblems in harmony or gift",
+        seed_offset: 6,
+      }
+    - {
+        key: "seven",
+        title_ko: "7",
+        visual: "seven emblems assessment and choice",
+        seed_offset: 7,
+      }
+    - {
+        key: "eight",
+        title_ko: "8",
+        visual: "eight emblems movement and craft",
+        seed_offset: 8,
+      }
+    - {
+        key: "nine",
+        title_ko: "9",
+        visual: "nine emblems resilience and near-completion",
+        seed_offset: 9,
+      }
+    - {
+        key: "ten",
+        title_ko: "10",
+        visual: "ten emblems culmination and legacy",
+        seed_offset: 10,
+      }
+    - {
+        key: "page",
+        title_ko: "시종",
+        visual: "youthful figure bearing the emblem, message",
+        seed_offset: 11,
+      }
+    - {
+        key: "knight",
+        title_ko: "기사",
+        visual: "mounted figure charging with emblem, pursuit",
+        seed_offset: 12,
+      }
+    - {
+        key: "queen",
+        title_ko: "여왕",
+        visual: "regal figure seated with emblem, grace",
+        seed_offset: 13,
+      }
+    - {
+        key: "king",
+        title_ko: "왕",
+        visual: "sovereign figure with emblem, mastery",
+        seed_offset: 14,
+      }

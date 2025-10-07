@@ -1,0 +1,309 @@
+# 공통 설정
+width: 640
+height: 960
+steps: 20
+sampler: "DPM++ 2M Karras"
+cfg: 7.0
+timeout_sec: 600
+
+common: >
+  ornate tarot card illustration, sharp line art, clean ornate border,
+  centered composition, detailed symbolism, high resolution, fantasy art
+
+negative: >
+  blurry, lowres, pastel overload, messy composition,
+  duplicate heads, missing symbols, cropped, watermark,
+  illegible text, bad hands, bad anatomy, distorted faces,
+  haze, low contrast, overexposed, underexposed
+
+# 메이저 아르카나 22장
+major_cards:
+  - id: "major_00"
+    slug: "fool"
+    title_ko: "바보"
+    seed: 100
+    prompt: >
+      title text: '바보',
+      youth standing at cliff edge,
+      knapsack on staff, white rose in hand,
+      small dog at feet, bright sun above
+
+  - id: "major_01"
+    slug: "magician"
+    title_ko: "마법사"
+    seed: 101
+    prompt: >
+      title text: '마법사',
+      magician at ornate table with wand, cup, sword, pentacle,
+      infinity symbol above head,
+      one hand raised skyward, other pointing down,
+      bright garden, ornate border
+
+  - id: "major_02"
+    slug: "high_priestess"
+    title_ko: "여사제"
+    seed: 102
+    prompt: >
+      title text: '여사제',
+      seated priestess with scroll marked TORA,
+      pillars B and J, veil with pomegranates,
+      crescent moon at feet, serene mystical
+
+  - id: "major_03"
+    slug: "empress"
+    title_ko: "여제"
+    seed: 103
+    prompt: >
+      title text: '여제',
+      crowned woman on throne with scepter,
+      robe with pomegranates, wheat and forest background
+
+  - id: "major_04"
+    slug: "emperor"
+    title_ko: "황제"
+    seed: 104
+    prompt: >
+      title text: '황제',
+      stern king on stone throne with ram carvings,
+      orb and scepter, mountain background, red robe
+
+  - id: "major_05"
+    slug: "hierophant"
+    title_ko: "교황"
+    seed: 105
+    prompt: >
+      title text: '교황',
+      pope-like figure between pillars,
+      triple crown, staff with triple cross,
+      two acolytes kneeling, blessing gesture
+
+  - id: "major_06"
+    slug: "lovers"
+    title_ko: "연인"
+    seed: 106
+    prompt: >
+      title text: '연인',
+      man and woman blessed by angel,
+      radiant sun, tree of knowledge with serpent,
+      tree of flames
+
+  - id: "major_07"
+    slug: "chariot"
+    title_ko: "전차"
+    seed: 107
+    prompt: >
+      title text: '전차',
+      armored warrior in chariot,
+      two sphinxes black and white,
+      city background, star canopy
+
+  - id: "major_08"
+    slug: "strength"
+    title_ko: "힘"
+    seed: 108
+    prompt: >
+      title text: '힘',
+      maiden closing lion’s mouth,
+      infinity symbol above, flower garland
+
+  - id: "major_09"
+    slug: "hermit"
+    title_ko: "은둔자"
+    seed: 109
+    prompt: >
+      title text: '은둔자',
+      old man with lantern and staff,
+      snowy mountain, glowing star lantern
+
+  - id: "major_10"
+    slug: "wheel_of_fortune"
+    title_ko: "운명의 수레바퀴"
+    seed: 110
+    prompt: >
+      title text: '운명의 수레바퀴',
+      large wheel with symbols,
+      sphinx on top, snake descending,
+      four winged creatures in corners
+
+  - id: "major_11"
+    slug: "justice"
+    title_ko: "정의"
+    seed: 111
+    prompt: >
+      title text: '정의',
+      crowned figure between pillars,
+      sword upright, scales in hand
+
+  - id: "major_12"
+    slug: "hanged_man"
+    title_ko: "매달린 사람"
+    seed: 112
+    prompt: >
+      title text: '매달린 사람',
+      man hanging upside down from tree,
+      glowing halo, one leg bent
+
+  - id: "major_13"
+    slug: "death"
+    title_ko: "죽음"
+    seed: 113
+    prompt: >
+      title text: '죽음',
+      skeleton in black armor on white horse,
+      black flag with white rose,
+      sunrise background
+
+  - id: "major_14"
+    slug: "temperance"
+    title_ko: "절제"
+    seed: 114
+    prompt: >
+      title text: '절제',
+      angel with one foot on land, one in water,
+      pouring liquid between cups,
+      glowing aura
+
+  - id: "major_15"
+    slug: "devil"
+    title_ko: "악마"
+    seed: 115
+    prompt: >
+      title text: '악마',
+      horned devil on pedestal,
+      man and woman chained,
+      inverted torch
+
+  - id: "major_16"
+    slug: "tower"
+    title_ko: "탑"
+    seed: 116
+    prompt: >
+      title text: '탑',
+      tower struck by lightning,
+      flames, people falling, crown toppling
+
+  - id: "major_17"
+    slug: "star"
+    title_ko: "별"
+    seed: 117
+    prompt: >
+      title text: '별',
+      nude woman kneeling at water,
+      pouring into pool and land,
+      large star and seven small stars
+
+  - id: "major_18"
+    slug: "moon"
+    title_ko: "달"
+    seed: 118
+    prompt: >
+      title text: '달',
+      moon with face, two towers,
+      dog and wolf howling,
+      crayfish emerging
+
+  - id: "major_19"
+    slug: "sun"
+    title_ko: "태양"
+    seed: 119
+    prompt: >
+      title text: '태양',
+      child on white horse with red banner,
+      sunflowers, radiant sun
+
+  - id: "major_20"
+    slug: "judgement"
+    title_ko: "심판"
+    seed: 120
+    prompt: >
+      title text: '심판',
+      angel blowing trumpet,
+      people rising from graves,
+      mountains, flag with red cross
+
+  - id: "major_21"
+    slug: "world"
+    title_ko: "세계"
+    seed: 121
+    prompt: >
+      title text: '세계',
+      nude figure dancing with scarf,
+      laurel wreath border,
+      four corner creatures (lion, bull, eagle, angel)
+
+# 마이너 아르카나 자동 생성 템플릿
+minors:
+  suits:
+    wands:
+      title_ko: "완드"
+      visual: "wooden wand, sprouting leaves"
+      seed_base: 2000
+    cups:
+      title_ko: "컵"
+      visual: "golden chalice, flowing water"
+      seed_base: 3000
+    swords:
+      title_ko: "소드"
+      visual: "shining steel sword, clouds"
+      seed_base: 4000
+    pentacles:
+      title_ko: "펜타클"
+      visual: "gold coin pentacle, earthy background"
+      seed_base: 5000
+  ranks:
+    - key: "ace"
+      title_ko: "에이스"
+      visual: "single large symbol, hand from cloud"
+      seed_offset: 1
+    - key: "two"
+      title_ko: "투"
+      visual: "two symbols balanced or crossed"
+      seed_offset: 2
+    - key: "three"
+      title_ko: "쓰리"
+      visual: "three symbols in harmony"
+      seed_offset: 3
+    - key: "four"
+      title_ko: "포"
+      visual: "four symbols stable structure"
+      seed_offset: 4
+    - key: "five"
+      title_ko: "파이브"
+      visual: "five symbols conflict or struggle"
+      seed_offset: 5
+    - key: "six"
+      title_ko: "식스"
+      visual: "six symbols balance or gift"
+      seed_offset: 6
+    - key: "seven"
+      title_ko: "세븐"
+      visual: "seven symbols challenge"
+      seed_offset: 7
+    - key: "eight"
+      title_ko: "에잇"
+      visual: "eight symbols movement"
+      seed_offset: 8
+    - key: "nine"
+      title_ko: "나인"
+      visual: "nine symbols success"
+      seed_offset: 9
+    - key: "ten"
+      title_ko: "텐"
+      visual: "ten symbols fulfillment"
+      seed_offset: 10
+    - key: "page"
+      title_ko: "페이지"
+      visual: "youth holding symbol"
+      seed_offset: 11
+    - key: "knight"
+      title_ko: "나이트"
+      visual: "knight riding horse with symbol"
+      seed_offset: 12
+    - key: "queen"
+      title_ko: "퀸"
+      visual: "queen seated with symbol"
+      seed_offset: 13
+    - key: "king"
+      title_ko: "킹"
+      visual: "king on throne with symbol"
+      seed_offset: 14
