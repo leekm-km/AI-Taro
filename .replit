@@ -1,0 +1,40 @@
+modules = ["python-3.12", "cpp-clang14"]
+[agent]
+expertMode = true
+
+[nix]
+channel = "stable-25_05"
+packages = ["flutter", "dart"]
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Flutter Web Server"
+
+[[workflows.workflow]]
+name = "Flutter Web Server"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd ai_taro_oppa/build/web && python -m http.server 5000 --bind 0.0.0.0"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["python", "-m", "http.server", "5000", "--bind", "0.0.0.0", "--directory", "ai_taro_oppa/build/web"]
+build = ["bash", "-c", "cd ai_taro_oppa && flutter build web --release"]
