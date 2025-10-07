@@ -320,13 +320,14 @@ class _CardSelectionPageState extends State<CardSelectionPage>
               ),
               itemCount: _totalCards,
               itemBuilder: (context, index) {
-                final delay = index * 0.05;
+                final delay = index * 0.04;
+                final intervalEnd = (delay + 0.3).clamp(0.0, 1.0);
                 final animation = Tween<double>(begin: 0.0, end: 1.0).animate(
                   CurvedAnimation(
                     parent: _animationController,
                     curve: Interval(
                       delay,
-                      delay + 0.3,
+                      intervalEnd,
                       curve: Curves.easeOutBack,
                     ),
                   ),
