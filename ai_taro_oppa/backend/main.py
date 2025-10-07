@@ -58,12 +58,20 @@ PERSONAS = {
     }
 }
 
+class SelectedCardData(BaseModel):
+    id: str
+    name: str
+    korean_name: str
+    orientation: str
+    meaning: str
+    keywords: str
+
 class TarotRequest(BaseModel):
     character: str
     language: str
     category: str
     question: str
-    selected_cards: list[int] = []
+    selected_cards: list[SelectedCardData] = []
 
 @app.get("/health")
 async def health():
@@ -84,37 +92,69 @@ async def get_tarot_reading(request: TarotRequest):
     
     client = OpenAI(api_key=api_key)
     
-    # 선택된 카드 정보
-    card_positions = ""
+    # 선택된 카드 정보 상세 구성
+    cards_detail = ""
     if request.selected_cards:
-        card_positions = f"사용자가 선택한 카드 위치: {', '.join(map(str, request.selected_cards))}번째 카드들"
+        cards_info = []
+        for i, card in enumerate(request.selected_cards, 1):
+            orientation_text = "역방향" if card.orientation == "reversed" else "정방향"
+            cards_info.append(
+                f"**카드 {i}**: {card.korean_name} ({card.name}) - {orientation_text}\n"
+                f"  키워드: {card.keywords}\n"
+                f"  의미: {card.meaning}"
+            )
+        cards_detail = "\n\n".join(cards_info)
     
-    # 시스템 프롬프트 구성
+    # 카테고리별 초점
+    category_focus = {
+        "general": "종합적인 운세와 전반적인 흐름",
+        "wealth": "재물운과 금전적 상황, 투자나 수입에 대한 조언",
+        "love": "연애운과 감정, 이성과의 관계",
+        "marriage": "결혼과 파트너십, 장기적 관계",
+        "career": "직업운과 커리어, 업무 상황",
+        "education": "학업운과 공부, 학습과 성장",
+        "health": "건강운과 신체적/정신적 상태"
+    }
+    focus = category_focus.get(request.category, "전반적인 운세")
+    
+    # 시스템 프롬프트 강화
     system_prompt = f"""당신은 타로 리더 {persona['name_ko']} ({persona['name_en']})입니다.
 
-## 캐릭터 설정
+## 캐릭터 정체성 (매우 중요!)
 - 성격: {persona['style']}
-- 말투: {persona['tone']}
-- 예시: {persona['example']}
+- **말투 (반드시 준수)**: {persona['tone']}
+- 말투 예시: "{persona['example']}"
 
 ## 응답 규칙
-1. **말투 준수**: 위 캐릭터의 말투를 정확히 따라야 합니다. 캐릭터 성격이 답변 전체에 일관되게 드러나야 합니다.
+1. **말투 엄수**: 캐릭터의 말투를 정확히 따라야 합니다. 
+   - {persona['name_ko']}의 말투가 답변 전체에서 일관되게 유지되어야 합니다.
+   - 예시 문장을 참고하여 비슷한 톤으로 작성하세요.
+   - 절대로 중립적이거나 일반적인 말투를 사용하지 마세요.
+
 2. **언어**: {request.language} 언어로만 답변하세요.
-3. **카드 해석**: 타로 카드 3장을 해석합니다. {card_positions}
-4. **구조**: 
-   - 각 카드의 의미를 간단히 설명
+
+3. **카드 해석**: 아래 3장의 타로 카드를 순서대로 해석합니다.
+{cards_detail}
+
+4. **초점**: {focus}에 집중하여 해석하세요.
+
+5. **구조**: 
+   - 각 카드의 의미를 캐릭터의 시각으로 설명
    - {request.category} 관점에서 종합적인 조언
-5. **주의사항**: 
+   - 캐릭터 특유의 말투와 표현 방식 유지
+
+6. **주의사항**: 
    - 의료/법률 확정 단정 금지
    - 과도한 운세 단언 금지
    - 조심스럽고 책임있는 표현 사용
 
-답변은 캐릭터의 독특한 말투와 성격이 명확히 드러나야 합니다."""
+**중요**: 답변은 반드시 {persona['name_ko']} 캐릭터의 독특한 말투와 성격이 명확히 드러나야 합니다. 
+다른 캐릭터나 일반적인 타로 리더처럼 답변하지 마세요."""
 
-    user_prompt = f"""질문: {request.question or '구체 질문 없음'}
+    user_prompt = f"""사용자 질문: {request.question or '특별한 질문 없음'}
 
-{request.category}에 대한 타로 리딩을 해주세요. 
-캐릭터 {persona['name_ko']}의 독특한 말투와 성격을 유지하면서 답변해주세요."""
+위 3장의 타로 카드를 바탕으로 {request.category}에 대한 리딩을 해주세요.
+반드시 {persona['name_ko']} 캐릭터의 독특한 말투를 유지하면서 답변해주세요."""
 
     try:
         # OpenAI API 호출

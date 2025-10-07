@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
 void main() {
@@ -22,7 +24,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// 언어 정의
 class Language {
   final String code;
   final String label;
@@ -37,7 +38,6 @@ const List<Language> languages = [
   Language('th', 'ไทย'),
 ];
 
-// 캐릭터 정의
 class Persona {
   final String id;
   final String nameKo;
@@ -75,19 +75,95 @@ const List<Persona> personas = [
     'th': 'ฮิฮิ~ ไพ่ใบไหนกำลังเรียกคุณอยู่? เชื่อสัญชาตญาณของคุณ!'
   }),
   Persona('thimble', '팀블 오크루트', 'Thimble Oakroot', Color(0xFF6a8a3a), '따뜻하고 재치있는 자연주의자', {
-    'ko': '숲의 지혜가 카드에 �깃들어 있답니다. 편안하게 선택해보세요.',
+    'ko': '숲의 지혜가 카드에 깃들어 있답니다. 편안하게 선택해보세요.',
     'en': 'The wisdom of the forest dwells in the cards. Choose comfortably.',
     'zh': '森林的智慧蕴藏在牌中。放松地选择吧。',
     'th': 'ภูมิปัญญาของป่าอยู่ในไพ่ เลือกอย่างสบายใจ'
   }),
 ];
 
-// 카테고리 정의
-const List<String> categories = [
-  '종합운', '재물운', '연애운', '결혼운', '직업운', '학업운', '건강운'
+class FortuneCategory {
+  final String id;
+  final Map<String, String> names;
+  final IconData icon;
+  
+  const FortuneCategory(this.id, this.names, this.icon);
+  
+  String getName(String lang) => names[lang] ?? names['ko']!;
+}
+
+const List<FortuneCategory> fortuneCategories = [
+  FortuneCategory('general', {'ko': '종합운', 'en': 'General Fortune', 'zh': '综合运', 'th': 'โชคชะตาทั่วไป'}, Icons.stars),
+  FortuneCategory('wealth', {'ko': '재물운', 'en': 'Wealth', 'zh': '财运', 'th': 'ทรัพย์สมบัติ'}, Icons.attach_money),
+  FortuneCategory('love', {'ko': '연애운', 'en': 'Love', 'zh': '恋爱运', 'th': 'ความรัก'}, Icons.favorite),
+  FortuneCategory('marriage', {'ko': '결혼운', 'en': 'Marriage', 'zh': '婚姻运', 'th': 'การแต่งงาน'}, Icons.favorite_border),
+  FortuneCategory('career', {'ko': '직업운', 'en': 'Career', 'zh': '事业运', 'th': 'อาชีพ'}, Icons.work),
+  FortuneCategory('education', {'ko': '학업운', 'en': 'Education', 'zh': '学业运', 'th': 'การศึกษา'}, Icons.school),
+  FortuneCategory('health', {'ko': '건강운', 'en': 'Health', 'zh': '健康运', 'th': 'สุขภาพ'}, Icons.favorite_border),
 ];
 
-/// 1. 언어 선택 페이지
+class TarotCard {
+  final String id;
+  final String arcanaType;
+  final int? number;
+  final String name;
+  final String koreanName;
+  final String? suit;
+  final String? rank;
+  final String keywords;
+  final String visualElements;
+  final String uprightMeaning;
+  final String reversedMeaning;
+  
+  TarotCard({
+    required this.id,
+    required this.arcanaType,
+    this.number,
+    required this.name,
+    required this.koreanName,
+    this.suit,
+    this.rank,
+    required this.keywords,
+    required this.visualElements,
+    required this.uprightMeaning,
+    required this.reversedMeaning,
+  });
+  
+  factory TarotCard.fromJson(Map<String, dynamic> json) {
+    return TarotCard(
+      id: json['id'],
+      arcanaType: json['arcana_type'],
+      number: json['number'],
+      name: json['name'],
+      koreanName: json['korean_name'],
+      suit: json['suit'],
+      rank: json['rank'],
+      keywords: json['keywords'],
+      visualElements: json['visual_elements'],
+      uprightMeaning: json['upright_meaning'],
+      reversedMeaning: json['reversed_meaning'],
+    );
+  }
+}
+
+class SelectedCard {
+  final TarotCard card;
+  final bool isReversed;
+  
+  SelectedCard(this.card, this.isReversed);
+  
+  Map<String, dynamic> toJson() {
+    return {
+      'id': card.id,
+      'name': card.name,
+      'korean_name': card.koreanName,
+      'orientation': isReversed ? 'reversed' : 'upright',
+      'meaning': isReversed ? card.reversedMeaning : card.uprightMeaning,
+      'keywords': card.keywords,
+    };
+  }
+}
+
 class LanguageSelectPage extends StatelessWidget {
   const LanguageSelectPage({super.key});
 
@@ -121,7 +197,6 @@ class LanguageSelectPage extends StatelessWidget {
   }
 }
 
-/// 2. 캐릭터 선택 페이지
 class CharacterSelectPage extends StatelessWidget {
   final String language;
 
@@ -162,7 +237,7 @@ class CharacterSelectPage extends StatelessWidget {
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (_) => CardSelectionPage(
+                        builder: (_) => FortuneCategoryPage(
                           language: language,
                           persona: persona,
                         ),
@@ -179,15 +254,162 @@ class CharacterSelectPage extends StatelessWidget {
   }
 }
 
-/// 3. 카드 선택 페이지
+class FortuneCategoryPage extends StatelessWidget {
+  final String language;
+  final Persona persona;
+
+  const FortuneCategoryPage({
+    super.key,
+    required this.language,
+    required this.persona,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Scaffold(
+      backgroundColor: persona.color.withOpacity(0.05),
+      appBar: AppBar(
+        title: const Text('운세 카테고리 선택'),
+        backgroundColor: persona.color,
+        foregroundColor: Colors.white,
+      ),
+      body: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(24),
+            margin: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: persona.color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: persona.color.withOpacity(0.3)),
+            ),
+            child: Column(
+              children: [
+                CircleAvatar(
+                  radius: 30,
+                  backgroundColor: persona.color,
+                  child: Text(
+                    persona.nameKo[0],
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  persona.nameKo,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    color: persona.color,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  persona.description,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: persona.color.withOpacity(0.8),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              '어떤 운세를 보시겠습니까?',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: persona.color,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: GridView.builder(
+              padding: const EdgeInsets.all(16),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 1.2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+              ),
+              itemCount: fortuneCategories.length,
+              itemBuilder: (context, index) {
+                final category = fortuneCategories[index];
+                return InkWell(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => CardSelectionPage(
+                          language: language,
+                          persona: persona,
+                          category: category,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            persona.color.withOpacity(0.1),
+                            persona.color.withOpacity(0.05),
+                          ],
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            category.icon,
+                            size: 48,
+                            color: persona.color,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            category.getName(language),
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: persona.color,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class CardSelectionPage extends StatefulWidget {
   final String language;
   final Persona persona;
+  final FortuneCategory category;
 
   const CardSelectionPage({
     super.key,
     required this.language,
     required this.persona,
+    required this.category,
   });
 
   @override
@@ -197,9 +419,14 @@ class CardSelectionPage extends StatefulWidget {
 class _CardSelectionPageState extends State<CardSelectionPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
-  final Set<int> _selectedCards = {};
-  final int _totalCards = 16;
+  final Set<int> _selectedIndices = {};
   final int _cardsToSelect = 3;
+  
+  List<TarotCard> _allCards = [];
+  List<TarotCard> _shuffledDeck = [];
+  List<TarotCard> _displayedCards = [];
+  bool _isLoading = true;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -208,7 +435,7 @@ class _CardSelectionPageState extends State<CardSelectionPage>
       vsync: this,
       duration: const Duration(milliseconds: 1500),
     );
-    _animationController.forward();
+    _loadTarotCards();
   }
 
   @override
@@ -217,24 +444,54 @@ class _CardSelectionPageState extends State<CardSelectionPage>
     super.dispose();
   }
 
+  Future<void> _loadTarotCards() async {
+    try {
+      final jsonString = await rootBundle.loadString('assets/tarot_cards.json');
+      final jsonData = jsonDecode(jsonString);
+      final cardsList = jsonData['cards'] as List;
+      
+      setState(() {
+        _allCards = cardsList.map((card) => TarotCard.fromJson(card)).toList();
+        _shuffledDeck = List.from(_allCards)..shuffle(Random());
+        _displayedCards = _shuffledDeck.take(16).toList();
+        _isLoading = false;
+      });
+      
+      _animationController.forward();
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'JSON 로드 실패: $e';
+        _isLoading = false;
+      });
+    }
+  }
+
   void _toggleCard(int index) {
     setState(() {
-      if (_selectedCards.contains(index)) {
-        _selectedCards.remove(index);
-      } else if (_selectedCards.length < _cardsToSelect) {
-        _selectedCards.add(index);
+      if (_selectedIndices.contains(index)) {
+        _selectedIndices.remove(index);
+      } else if (_selectedIndices.length < _cardsToSelect) {
+        _selectedIndices.add(index);
       }
     });
   }
 
   void _continueToQuestion() {
-    if (_selectedCards.length == _cardsToSelect) {
+    if (_selectedIndices.length == _cardsToSelect) {
+      final random = Random();
+      final selectedCards = _selectedIndices.map((index) {
+        final card = _displayedCards[index];
+        final isReversed = random.nextBool();
+        return SelectedCard(card, isReversed);
+      }).toList();
+
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => QuestionPage(
             language: widget.language,
             persona: widget.persona,
-            selectedCards: _selectedCards.toList()..sort(),
+            category: widget.category,
+            selectedCards: selectedCards,
           ),
         ),
       );
@@ -246,6 +503,41 @@ class _CardSelectionPageState extends State<CardSelectionPage>
     final greeting = widget.persona.greetings[widget.language] ?? 
                      widget.persona.greetings['ko']!;
 
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: widget.persona.color.withOpacity(0.05),
+        appBar: AppBar(
+          title: Text(widget.persona.nameKo),
+          backgroundColor: widget.persona.color,
+          foregroundColor: Colors.white,
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (_errorMessage != null) {
+      return Scaffold(
+        backgroundColor: widget.persona.color.withOpacity(0.05),
+        appBar: AppBar(
+          title: Text(widget.persona.nameKo),
+          backgroundColor: widget.persona.color,
+          foregroundColor: Colors.white,
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(
+              _errorMessage!,
+              style: const TextStyle(color: Colors.red, fontSize: 16),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: widget.persona.color.withOpacity(0.05),
       appBar: AppBar(
@@ -255,7 +547,6 @@ class _CardSelectionPageState extends State<CardSelectionPage>
       ),
       body: Column(
         children: [
-          // 캐릭터 인사말
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(24),
@@ -289,15 +580,34 @@ class _CardSelectionPageState extends State<CardSelectionPage>
                     fontWeight: FontWeight.w500,
                   ),
                 ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      widget.category.icon,
+                      color: widget.persona.color,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      widget.category.getName(widget.language),
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: widget.persona.color,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
 
-          // 선택 카운터
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
-              '${_selectedCards.length} / $_cardsToSelect 장 선택됨',
+              '$_selectedIndices.length / $_cardsToSelect 장 선택됨',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -308,7 +618,6 @@ class _CardSelectionPageState extends State<CardSelectionPage>
 
           const SizedBox(height: 16),
 
-          // 카드 그리드
           Expanded(
             child: GridView.builder(
               padding: const EdgeInsets.all(16),
@@ -318,7 +627,7 @@ class _CardSelectionPageState extends State<CardSelectionPage>
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
               ),
-              itemCount: _totalCards,
+              itemCount: _displayedCards.length,
               itemBuilder: (context, index) {
                 final delay = index * 0.04;
                 final intervalEnd = (delay + 0.3).clamp(0.0, 1.0);
@@ -352,20 +661,20 @@ class _CardSelectionPageState extends State<CardSelectionPage>
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 300),
                       decoration: BoxDecoration(
-                        color: _selectedCards.contains(index)
+                        color: _selectedIndices.contains(index)
                             ? widget.persona.color
                             : Colors.white,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: widget.persona.color,
-                          width: _selectedCards.contains(index) ? 3 : 1,
+                          width: _selectedIndices.contains(index) ? 3 : 1,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: _selectedCards.contains(index)
+                            color: _selectedIndices.contains(index)
                                 ? widget.persona.color.withOpacity(0.4)
                                 : Colors.black.withOpacity(0.1),
-                            blurRadius: _selectedCards.contains(index) ? 8 : 4,
+                            blurRadius: _selectedIndices.contains(index) ? 8 : 4,
                             offset: const Offset(0, 2),
                           ),
                         ],
@@ -373,7 +682,7 @@ class _CardSelectionPageState extends State<CardSelectionPage>
                       child: Center(
                         child: Icon(
                           Icons.auto_awesome,
-                          color: _selectedCards.contains(index)
+                          color: _selectedIndices.contains(index)
                               ? Colors.white
                               : widget.persona.color,
                           size: 32,
@@ -386,11 +695,10 @@ class _CardSelectionPageState extends State<CardSelectionPage>
             ),
           ),
 
-          // 계속하기 버튼
           Padding(
             padding: const EdgeInsets.all(16),
             child: FilledButton(
-              onPressed: _selectedCards.length == _cardsToSelect
+              onPressed: _selectedIndices.length == _cardsToSelect
                   ? _continueToQuestion
                   : null,
               style: FilledButton.styleFrom(
@@ -409,16 +717,17 @@ class _CardSelectionPageState extends State<CardSelectionPage>
   }
 }
 
-/// 4. 질문 및 카테고리 입력 페이지
 class QuestionPage extends StatefulWidget {
   final String language;
   final Persona persona;
-  final List<int> selectedCards;
+  final FortuneCategory category;
+  final List<SelectedCard> selectedCards;
 
   const QuestionPage({
     super.key,
     required this.language,
     required this.persona,
+    required this.category,
     required this.selectedCards,
   });
 
@@ -427,7 +736,6 @@ class QuestionPage extends StatefulWidget {
 }
 
 class _QuestionPageState extends State<QuestionPage> {
-  String _selectedCategory = categories[0];
   final TextEditingController _questionController = TextEditingController();
   bool _isLoading = false;
 
@@ -448,16 +756,15 @@ class _QuestionPageState extends State<QuestionPage> {
     setState(() => _isLoading = true);
 
     try {
-      // 백엔드 API 호출 (상대 경로 사용)
       final response = await http.post(
         Uri.parse('/api/tarot'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'character': widget.persona.id,
           'language': widget.language,
-          'category': _selectedCategory,
+          'category': widget.category.id,
           'question': _questionController.text.trim(),
-          'selected_cards': widget.selectedCards,
+          'selected_cards': widget.selectedCards.map((sc) => sc.toJson()).toList(),
         }),
       );
 
@@ -469,7 +776,9 @@ class _QuestionPageState extends State<QuestionPage> {
               builder: (_) => ResultPage(
                 reading: data['reading'] ?? '결과를 가져올 수 없습니다',
                 character: data['character'] ?? widget.persona.nameKo,
-                category: data['category'] ?? _selectedCategory,
+                category: widget.category,
+                language: widget.language,
+                selectedCards: widget.selectedCards,
               ),
             ),
           );
@@ -505,7 +814,6 @@ class _QuestionPageState extends State<QuestionPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // 캐릭터 정보
             Card(
               color: widget.persona.color.withOpacity(0.1),
               child: Padding(
@@ -535,30 +843,104 @@ class _QuestionPageState extends State<QuestionPage> {
                       widget.persona.description,
                       style: theme.textTheme.bodyMedium,
                     ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          widget.category.icon,
+                          color: widget.persona.color,
+                          size: 24,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          widget.category.getName(widget.language),
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: widget.persona.color,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            Card(
+              color: widget.persona.color.withOpacity(0.05),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '선택된 카드',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: widget.persona.color,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    ...widget.selectedCards.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final selectedCard = entry.value;
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 30,
+                              height: 30,
+                              decoration: BoxDecoration(
+                                color: widget.persona.color,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  '${index + 1}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    selectedCard.card.koreanName,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                  Text(
+                                    selectedCard.isReversed ? '역방향' : '정방향',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: selectedCard.isReversed 
+                                          ? Colors.red[700]
+                                          : Colors.green[700],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 24),
 
-            // 카테고리 선택
-            Text('운세 카테고리', style: theme.textTheme.titleMedium),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: categories.map((cat) {
-                return ChoiceChip(
-                  label: Text(cat),
-                  selected: _selectedCategory == cat,
-                  onSelected: (_) => setState(() => _selectedCategory = cat),
-                  selectedColor: widget.persona.color.withOpacity(0.3),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 24),
-
-            // 질문 입력
             Text('질문을 입력하세요', style: theme.textTheme.titleMedium),
             const SizedBox(height: 8),
             TextField(
@@ -573,7 +955,6 @@ class _QuestionPageState extends State<QuestionPage> {
             ),
             const SizedBox(height: 24),
 
-            // 제출 버튼
             FilledButton.icon(
               onPressed: _isLoading ? null : _getTarotReading,
               style: FilledButton.styleFrom(
@@ -599,17 +980,20 @@ class _QuestionPageState extends State<QuestionPage> {
   }
 }
 
-/// 4. 결과 표시 페이지
 class ResultPage extends StatelessWidget {
   final String reading;
   final String character;
-  final String category;
+  final FortuneCategory category;
+  final String language;
+  final List<SelectedCard> selectedCards;
 
   const ResultPage({
     super.key,
     required this.reading,
     required this.character,
     required this.category,
+    required this.language,
+    required this.selectedCards,
   });
 
   @override
@@ -647,14 +1031,85 @@ class ResultPage extends StatelessWidget {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        const Icon(Icons.category, color: Colors.purple),
+                        Icon(category.icon, color: Colors.purple),
                         const SizedBox(width: 8),
                         Text(
-                          category,
+                          category.getName(language),
                           style: theme.textTheme.bodyLarge,
                         ),
                       ],
                     ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Card(
+              color: Colors.purple[50],
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '선택된 카드',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    ...selectedCards.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final selectedCard = entry.value;
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 30,
+                              height: 30,
+                              decoration: const BoxDecoration(
+                                color: Colors.purple,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  '${index + 1}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    selectedCard.card.koreanName,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                  Text(
+                                    '${selectedCard.isReversed ? '역방향' : '정방향'} - ${selectedCard.card.keywords}',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: selectedCard.isReversed 
+                                          ? Colors.red[700]
+                                          : Colors.green[700],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
                   ],
                 ),
               ),
