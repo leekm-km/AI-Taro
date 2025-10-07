@@ -345,7 +345,7 @@ class FortuneCategoryPage extends StatelessWidget {
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (_) => CardSelectionPage(
+                        builder: (_) => QuestionPage(
                           language: language,
                           persona: persona,
                           category: category,
@@ -400,16 +400,166 @@ class FortuneCategoryPage extends StatelessWidget {
   }
 }
 
+class QuestionPage extends StatefulWidget {
+  final String language;
+  final Persona persona;
+  final FortuneCategory category;
+
+  const QuestionPage({
+    super.key,
+    required this.language,
+    required this.persona,
+    required this.category,
+  });
+
+  @override
+  State<QuestionPage> createState() => _QuestionPageState();
+}
+
+class _QuestionPageState extends State<QuestionPage> {
+  final TextEditingController _questionController = TextEditingController();
+
+  @override
+  void dispose() {
+    _questionController.dispose();
+    super.dispose();
+  }
+
+  void _proceedToCardSelection() {
+    if (_questionController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('질문을 입력해주세요')),
+      );
+      return;
+    }
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => CardSelectionPage(
+          language: widget.language,
+          persona: widget.persona,
+          category: widget.category,
+          question: _questionController.text.trim(),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('${widget.persona.nameKo}에게 물어보기'),
+        backgroundColor: widget.persona.color,
+        foregroundColor: Colors.white,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Card(
+              color: widget.persona.color.withOpacity(0.1),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    CircleAvatar(
+                      radius: 40,
+                      backgroundColor: widget.persona.color,
+                      child: Text(
+                        widget.persona.nameKo[0],
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 32,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      widget.persona.nameKo,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        color: widget.persona.color,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          widget.category.icon,
+                          color: widget.persona.color,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          widget.category.getName(widget.language),
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: widget.persona.color,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              '무엇이 궁금하신가요?',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _questionController,
+              maxLines: 5,
+              decoration: InputDecoration(
+                hintText: '예: 이번 달 재물운이 어떨까요?\n예: 새로운 일을 시작해도 될까요?',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                fillColor: Colors.grey[50],
+              ),
+            ),
+            const SizedBox(height: 24),
+            FilledButton(
+              onPressed: _proceedToCardSelection,
+              style: FilledButton.styleFrom(
+                backgroundColor: widget.persona.color,
+                minimumSize: const Size(double.infinity, 50),
+              ),
+              child: const Text(
+                '카드 선택하기',
+                style: TextStyle(fontSize: 18),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class CardSelectionPage extends StatefulWidget {
   final String language;
   final Persona persona;
   final FortuneCategory category;
+  final String question;
 
   const CardSelectionPage({
     super.key,
     required this.language,
     required this.persona,
     required this.category,
+    required this.question,
   });
 
   @override
@@ -476,7 +626,7 @@ class _CardSelectionPageState extends State<CardSelectionPage>
     });
   }
 
-  void _continueToQuestion() {
+  void _continueToReveal() {
     if (_selectedIndices.length == _cardsToSelect) {
       final random = Random();
       final selectedCards = _selectedIndices.map((index) {
@@ -487,10 +637,11 @@ class _CardSelectionPageState extends State<CardSelectionPage>
 
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) => QuestionPage(
+          builder: (_) => CardRevealPage(
             language: widget.language,
             persona: widget.persona,
             category: widget.category,
+            question: widget.question,
             selectedCards: selectedCards,
           ),
         ),
@@ -699,7 +850,7 @@ class _CardSelectionPageState extends State<CardSelectionPage>
             padding: const EdgeInsets.all(16),
             child: FilledButton(
               onPressed: _selectedIndices.length == _cardsToSelect
-                  ? _continueToQuestion
+                  ? _continueToReveal
                   : null,
               style: FilledButton.styleFrom(
                 backgroundColor: widget.persona.color,
@@ -717,42 +868,272 @@ class _CardSelectionPageState extends State<CardSelectionPage>
   }
 }
 
-class QuestionPage extends StatefulWidget {
+class CardRevealPage extends StatefulWidget {
   final String language;
   final Persona persona;
   final FortuneCategory category;
+  final String question;
   final List<SelectedCard> selectedCards;
 
-  const QuestionPage({
+  const CardRevealPage({
     super.key,
     required this.language,
     required this.persona,
     required this.category,
+    required this.question,
     required this.selectedCards,
   });
 
   @override
-  State<QuestionPage> createState() => _QuestionPageState();
+  State<CardRevealPage> createState() => _CardRevealPageState();
 }
 
-class _QuestionPageState extends State<QuestionPage> {
-  final TextEditingController _questionController = TextEditingController();
-  bool _isLoading = false;
+class _CardRevealPageState extends State<CardRevealPage>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  int _currentCardIndex = 0;
+  bool _allRevealed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    _startRevealSequence();
+  }
 
   @override
   void dispose() {
-    _questionController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
-  Future<void> _getTarotReading() async {
-    if (_questionController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('질문을 입력해주세요')),
-      );
-      return;
+  Future<void> _startRevealSequence() async {
+    for (int i = 0; i < widget.selectedCards.length; i++) {
+      await Future.delayed(const Duration(milliseconds: 500));
+      setState(() {
+        _currentCardIndex = i;
+      });
+      _controller.reset();
+      await _controller.forward();
+      await Future.delayed(const Duration(milliseconds: 300));
     }
+    
+    setState(() {
+      _allRevealed = true;
+    });
+  }
 
+  void _continueToAd() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => AdPlaceholderPage(
+          language: widget.language,
+          persona: widget.persona,
+          category: widget.category,
+          question: widget.question,
+          selectedCards: widget.selectedCards,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: widget.persona.color.withOpacity(0.05),
+      appBar: AppBar(
+        title: const Text('카드 공개'),
+        backgroundColor: widget.persona.color,
+        foregroundColor: Colors.white,
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      '선택한 카드를 공개합니다...',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: widget.persona.color,
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                    ...List.generate(widget.selectedCards.length, (index) {
+                      final selectedCard = widget.selectedCards[index];
+                      final isRevealing = _currentCardIndex == index;
+                      final isRevealed = index <= _currentCardIndex;
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 20),
+                        child: AnimatedOpacity(
+                          duration: const Duration(milliseconds: 300),
+                          opacity: isRevealed ? 1.0 : 0.3,
+                          child: AnimatedBuilder(
+                            animation: _controller,
+                            builder: (context, child) {
+                              final rotationAngle = isRevealing
+                                  ? _controller.value * 3.14159
+                                  : (isRevealed ? 3.14159 : 0.0);
+                              
+                              return Transform(
+                                alignment: Alignment.center,
+                                transform: Matrix4.identity()
+                                  ..setEntry(3, 2, 0.001)
+                                  ..rotateY(rotationAngle),
+                                child: child,
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: isRevealed
+                                    ? widget.persona.color
+                                    : Colors.grey,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        '${index + 1}',
+                                        style: TextStyle(
+                                          color: widget.persona.color,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          isRevealed
+                                              ? selectedCard.card.koreanName
+                                              : '???',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        if (isRevealed)
+                                          Text(
+                                            selectedCard.isReversed
+                                                ? '역방향'
+                                                : '정방향',
+                                            style: const TextStyle(
+                                              color: Colors.white70,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          if (_allRevealed)
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: FilledButton(
+                onPressed: _continueToAd,
+                style: FilledButton.styleFrom(
+                  backgroundColor: widget.persona.color,
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+                child: const Text(
+                  '계속하기',
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class AdPlaceholderPage extends StatefulWidget {
+  final String language;
+  final Persona persona;
+  final FortuneCategory category;
+  final String question;
+  final List<SelectedCard> selectedCards;
+
+  const AdPlaceholderPage({
+    super.key,
+    required this.language,
+    required this.persona,
+    required this.category,
+    required this.question,
+    required this.selectedCards,
+  });
+
+  @override
+  State<AdPlaceholderPage> createState() => _AdPlaceholderPageState();
+}
+
+class _AdPlaceholderPageState extends State<AdPlaceholderPage> {
+  int _countdown = 3;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _startCountdown();
+  }
+
+  void _startCountdown() {
+    Future.delayed(const Duration(seconds: 1), () {
+      if (mounted && _countdown > 0) {
+        setState(() {
+          _countdown--;
+        });
+        if (_countdown > 0) {
+          _startCountdown();
+        } else {
+          _getTarotReading();
+        }
+      }
+    });
+  }
+
+  Future<void> _getTarotReading() async {
     setState(() => _isLoading = true);
 
     try {
@@ -763,7 +1144,7 @@ class _QuestionPageState extends State<QuestionPage> {
           'character': widget.persona.id,
           'language': widget.language,
           'category': widget.category.id,
-          'question': _questionController.text.trim(),
+          'question': widget.question,
           'selected_cards': widget.selectedCards.map((sc) => sc.toJson()).toList(),
         }),
       );
@@ -771,13 +1152,15 @@ class _QuestionPageState extends State<QuestionPage> {
       if (response.statusCode == 200) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
         if (mounted) {
-          Navigator.of(context).push(
+          Navigator.of(context).pushReplacement(
             MaterialPageRoute(
               builder: (_) => ResultPage(
                 reading: data['reading'] ?? '결과를 가져올 수 없습니다',
                 character: data['character'] ?? widget.persona.nameKo,
                 category: widget.category,
                 language: widget.language,
+                persona: widget.persona,
+                question: widget.question,
                 selectedCards: widget.selectedCards,
               ),
             ),
@@ -791,188 +1174,72 @@ class _QuestionPageState extends State<QuestionPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('오류가 발생했습니다: $e')),
         );
-      }
-    } finally {
-      if (mounted) {
         setState(() => _isLoading = false);
       }
     }
   }
 
+  void _skipAd() {
+    _getTarotReading();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
-      appBar: AppBar(
-        title: Text('${widget.persona.nameKo}에게 물어보기'),
-        backgroundColor: widget.persona.color,
-        foregroundColor: Colors.white,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+      backgroundColor: Colors.black87,
+      body: Center(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Card(
-              color: widget.persona.color.withOpacity(0.1),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    CircleAvatar(
-                      radius: 40,
-                      backgroundColor: widget.persona.color,
-                      child: Text(
-                        widget.persona.nameKo[0],
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 32,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      widget.persona.nameKo,
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        color: widget.persona.color,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      widget.persona.description,
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          widget.category.icon,
-                          color: widget.persona.color,
-                          size: 24,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          widget.category.getName(widget.language),
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            color: widget.persona.color,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+            const Icon(
+              Icons.play_circle_outline,
+              size: 100,
+              color: Colors.white,
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              '광고 플레이스홀더',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 16),
-
-            Card(
-              color: widget.persona.color.withOpacity(0.05),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '선택된 카드',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: widget.persona.color,
+            const Text(
+              'Continue to see your reading',
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 32),
+            if (_isLoading)
+              const CircularProgressIndicator(color: Colors.white)
+            else if (_countdown > 0)
+              Column(
+                children: [
+                  Text(
+                    '$_countdown',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 48,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextButton(
+                    onPressed: _skipAd,
+                    child: const Text(
+                      'Skip',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 16,
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    ...widget.selectedCards.asMap().entries.map((entry) {
-                      final index = entry.key;
-                      final selectedCard = entry.value;
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 30,
-                              height: 30,
-                              decoration: BoxDecoration(
-                                color: widget.persona.color,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Center(
-                                child: Text(
-                                  '${index + 1}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    selectedCard.card.koreanName,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15,
-                                    ),
-                                  ),
-                                  Text(
-                                    selectedCard.isReversed ? '역방향' : '정방향',
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      color: selectedCard.isReversed 
-                                          ? Colors.red[700]
-                                          : Colors.green[700],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 24),
-
-            Text('질문을 입력하세요', style: theme.textTheme.titleMedium),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _questionController,
-              maxLines: 4,
-              decoration: InputDecoration(
-                hintText: '예: 올해 나의 재물운은 어떨까요?',
-                border: const OutlineInputBorder(),
-                filled: true,
-                fillColor: Colors.grey[100],
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            FilledButton.icon(
-              onPressed: _isLoading ? null : _getTarotReading,
-              style: FilledButton.styleFrom(
-                backgroundColor: widget.persona.color,
-                padding: const EdgeInsets.all(16),
-              ),
-              icon: _isLoading
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Icon(Icons.auto_awesome),
-              label: Text(_isLoading ? '리딩 중...' : '타로 리딩 받기'),
-            ),
           ],
         ),
       ),
@@ -985,6 +1252,8 @@ class ResultPage extends StatelessWidget {
   final String character;
   final FortuneCategory category;
   final String language;
+  final Persona persona;
+  final String question;
   final List<SelectedCard> selectedCards;
 
   const ResultPage({
@@ -993,6 +1262,8 @@ class ResultPage extends StatelessWidget {
     required this.character,
     required this.category,
     required this.language,
+    required this.persona,
+    required this.question,
     required this.selectedCards,
   });
 
@@ -1038,6 +1309,29 @@ class ResultPage extends StatelessWidget {
                           style: theme.textTheme.bodyLarge,
                         ),
                       ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Card(
+              color: Colors.purple[50],
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '질문',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      question,
+                      style: theme.textTheme.bodyMedium,
                     ),
                   ],
                 ),
@@ -1125,6 +1419,38 @@ class ResultPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
+            FilledButton.icon(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => AdPlaceholderPage(
+                      language: language,
+                      persona: persona,
+                      category: category,
+                      question: '',
+                      selectedCards: selectedCards,
+                    ),
+                  ),
+                ).then((_) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => QuestionPage(
+                        language: language,
+                        persona: persona,
+                        category: category,
+                      ),
+                    ),
+                  );
+                });
+              },
+              icon: const Icon(Icons.question_answer),
+              label: const Text('추가 질문하기'),
+              style: FilledButton.styleFrom(
+                backgroundColor: persona.color,
+                minimumSize: const Size(double.infinity, 50),
+              ),
+            ),
+            const SizedBox(height: 12),
             OutlinedButton.icon(
               onPressed: () {
                 Navigator.of(context).popUntil((route) => route.isFirst);
