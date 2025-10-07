@@ -117,52 +117,127 @@ The app is configured for **autoscale deployment**:
 
 ## Recent Changes (October 7, 2025)
 
-### Major Feature: Interactive Card Selection & Character Personalities
+### 🎴 Major Overhaul: Full 78-Card Tarot System with Enhanced Workflow
 
-**New Features Added:**
+**New User Flow:**
+1. Language Selection (한국어/English/中文/ไทย)
+2. Character Selection (5 unique personas)
+3. **Fortune Category Selection** (NEW) - Choose from 7 categories
+4. **Card Selection** (NEW) - Pick 3 from 16 displayed cards
+5. Question Input
+6. AI-Powered Tarot Reading
 
-1. **Card Selection Page**:
-   - Users now select 3 cards from 16 displayed cards before getting a reading
-   - Beautiful left-to-right staggered animation (0.04s delay per card)
-   - Interactive card selection with visual feedback
-   - Selected card information passed to AI for personalized readings
+---
 
-2. **Character Greetings**:
-   - Each of the 5 characters has unique greeting messages in all 4 languages
-   - Greetings displayed on card selection page
-   - Messages reflect each character's unique personality:
-     * **Lucien Voss**: "별들이 당신의 운명을 드러낼 준비가 되었소..."
-     * **Isolde Hartmann**: "당신의 영혼이 이끄는 대로..."
-     * **Cheongun Seonin**: "음양의 이치가 카드 속에..."
-     * **Linhua**: "후후~ 어떤 카드가 당신을 부르고 있을까요?"
-     * **Thimble Oakroot**: "숲의 지혜가 카드에 깃들어..."
+### ✨ Key Features Implemented
 
-3. **Enhanced AI Personalities**:
-   - Detailed character tone definitions added to backend
-   - Specific speech patterns for each character:
-     * **Lucien**: "~하시오", cold/analytical, astrologer tone
-     * **Isolde**: "~주세요", poetic/emotional, metaphorical
-     * **Cheongun**: "~하시게", proverb-style, yin-yang references
-     * **Linhua**: "~요", playful ("후후~", "어머~"), intuitive
-     * **Thimble**: "~답니다", nature metaphors, warm/practical
-   - Improved system prompts ensure consistent character voice in AI responses
+#### 1. **Full 78-Card Tarot Deck**
+- **22 Major Arcana**: The Fool, The Magician, The High Priestess, ... The World
+- **56 Minor Arcana**: 
+  - Wands (완드) - Fire, Creativity, Action
+  - Cups (컵) - Water, Emotions, Relationships
+  - Swords (소드) - Air, Thoughts, Conflicts
+  - Pentacles (펜타클) - Earth, Material, Achievement
+- Each card includes:
+  - Korean & English names
+  - Keywords & visual elements
+  - **Upright meaning** (정방향 해석)
+  - **Reversed meaning** (역방향 해석)
 
-**Updated User Flow:**
-1. Language Selection
-2. Character Selection
-3. **Card Selection** (NEW) - Pick 3 from 16 cards with animation
-4. Question Input
-5. Tarot Reading
+#### 2. **Fortune Category Selection Page**
+- 7 distinct fortune categories with multilingual support:
+  - 종합운 (General Fortune) ⭐
+  - 재물운 (Wealth) 💰
+  - 연애운 (Love) ❤️
+  - 결혼운 (Marriage) 💍
+  - 직업운 (Career) 💼
+  - 학업운 (Education) 📚
+  - 건강운 (Health) 🏥
+- Beautiful grid layout with icons
+- Localized names for all 4 languages
 
-### Technical Implementation
-- Flutter: Added `CardSelectionPage` with AnimationController
-- Backend: Enhanced `PERSONAS` with tone/example fields
-- API: Added `selected_cards` field to `TarotRequest`
-- Prompt engineering: Character-specific tone enforcement
+#### 3. **Intelligent Card Selection System**
+- **78-card shuffle**: Full deck randomized at page load
+- **16-card display**: First 16 cards shown face-down
+- **3-card pick**: User selects 3 cards for reading
+- **Orientation assignment**: Each card randomly assigned upright/reversed (50% chance)
+- **Real mapping**: Display indices map to actual 78-card deck positions
+- Smooth left-to-right animation for card spread
 
-### Previous Bug Fix: Production URL Architecture
+#### 4. **Enhanced Character Personalities**
+Dramatically strengthened GPT prompt engineering:
+- **Lucien Voss** (루시앙 보스): "~하시오" - Cold, analytical astrologer
+- **Isolde Hartmann** (이졸데 하르트만): "~주세요" - Poetic, emotional prophet
+- **Cheongun Seonin** (청운 선인): "~하시게" - Proverb-style Taoist sage
+- **Linhua** (린화): "후후~", "어머~" - Playful, mysterious fortune teller
+- **Thimble Oakroot** (팀블 오크루트): "~답니다" - Warm naturalist with practical wisdom
+
+#### 5. **Backend API Enhancements**
+- **SelectedCardData model**: Receives full card information
+  - Card ID, name (English + Korean)
+  - Orientation (upright/reversed)
+  - Meaning (context-aware based on orientation)
+  - Keywords
+- **Category-focused prompts**: Each fortune category has specific AI focus
+- **Strict tone enforcement**: System prompts force consistent character speech patterns
+- **Detailed card interpretation**: AI receives actual card meanings, not just positions
+
+---
+
+### 🛠 Technical Implementation
+
+**Frontend (Flutter):**
+- `TarotCard` model: Full card data structure with fromJson factory
+- `SelectedCard` model: Combines card + orientation (isReversed bool)
+- `FortuneCategory` model: Multilingual category data
+- `FortuneCategoryPage`: New page between character and card selection
+- JSON asset loading: rootBundle.loadString('assets/tarot_cards.json')
+- Shuffle logic: Random().shuffle() on full 78-card deck
+- Orientation randomization: Random().nextBool() for each selected card
+
+**Backend (FastAPI):**
+- `SelectedCardData` Pydantic model validates incoming card data
+- Category focus mapping: 7 categories with specific reading angles
+- Enhanced system prompts:
+  - Character tone enforcement (3 levels of emphasis)
+  - Card meanings explicitly provided to GPT
+  - Fortune category context injection
+  - Example phrases for each character
+
+**Data Structure:**
+```
+assets/
+  └── tarot_cards.json (78 cards, ~15KB)
+      ├── Major Arcana (0-21)
+      └── Minor Arcana
+          ├── Wands (Ace-King, 14 cards)
+          ├── Cups (Ace-King, 14 cards)
+          ├── Swords (Ace-King, 14 cards)
+          └── Pentacles (Ace-King, 14 cards)
+```
+
+---
+
+### 🎯 User Experience Improvements
+
+1. **Structured Fortune-Telling Flow**: Clear progression through categories before cards
+2. **Authentic Tarot Experience**: Real 78-card deck with proper upright/reversed interpretations
+3. **Personalized Readings**: AI receives actual card meanings for contextual responses
+4. **Character Differentiation**: Each persona now has distinctly recognizable speech patterns
+5. **Visual Clarity**: Card information displayed with orientation badges
+
+---
+
+### Previous Updates
+
+#### Interactive Card Selection & Character Greetings (Earlier v1)
+- Card selection page with staggered animations
+- Character-specific greetings on card page
+- Initial persona tone definitions
+
+#### Production URL Architecture Fix
 - Unified server on port 5000 serving both API and static files
-- Relative URL `/api/tarot` instead of hardcoded localhost
+- Relative URL `/api/tarot` for cross-environment compatibility
 - OpenAI upgraded to 2.2.0 for httpx compatibility
 
 ## Notes
