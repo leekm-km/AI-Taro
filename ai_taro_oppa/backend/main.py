@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from openai import OpenAI
 import os
@@ -53,8 +54,8 @@ class TarotRequest(BaseModel):
     category: str
     question: str
 
-@app.get("/")
-async def root():
+@app.get("/health")
+async def health():
     return {"status": "Tarot API is running"}
 
 @app.post("/api/tarot")
@@ -105,6 +106,27 @@ async def get_tarot_reading(request: TarotRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"OpenAI API error: {str(e)}")
 
+# Flutter 웹 정적 파일 서빙 설정
+web_build_path = os.path.join(os.path.dirname(__file__), "..", "build", "web")
+
+# 정적 파일 제공 (assets, js 등)
+if os.path.exists(web_build_path):
+    # API 경로가 아닌 다른 모든 요청에 대해 index.html 반환 (SPA 지원)
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        # API 경로는 건너뛰기
+        if full_path.startswith("api/") or full_path == "health":
+            raise HTTPException(status_code=404)
+        
+        # 실제 파일이 존재하면 해당 파일 반환
+        file_path = os.path.join(web_build_path, full_path)
+        if os.path.isfile(file_path):
+            return FileResponse(file_path)
+        
+        # 그 외에는 index.html 반환 (Flutter 라우팅)
+        index_path = os.path.join(web_build_path, "index.html")
+        return FileResponse(index_path)
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=5000)

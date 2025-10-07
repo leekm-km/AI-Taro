@@ -11,8 +11,8 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 8000
-externalPort = 8000
+localPort = 33123
+externalPort = 3000
 
 [workflows]
 runButton = "Project"
@@ -24,37 +24,21 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Flutter Web Server"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Backend API Server"
+args = "Tarot App Server"
 
 [[workflows.workflow]]
-name = "Flutter Web Server"
+name = "Tarot App Server"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd ai_taro_oppa/build/web && python -m http.server 5000 --bind 0.0.0.0"
+args = "cd ai_taro_oppa/backend && uvicorn main:app --host 0.0.0.0 --port 5000"
 waitForPort = 5000
 
 [workflows.workflow.metadata]
 outputType = "webview"
 
-[[workflows.workflow]]
-name = "Backend API Server"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd ai_taro_oppa/backend && uvicorn main:app --host 0.0.0.0 --port 8000"
-waitForPort = 8000
-
-[workflows.workflow.metadata]
-outputType = "console"
-
 [deployment]
 deploymentTarget = "autoscale"
-run = ["python", "-m", "http.server", "5000", "--bind", "0.0.0.0", "--directory", "ai_taro_oppa/build/web"]
+run = ["uvicorn", "ai_taro_oppa.backend.main:app", "--host", "0.0.0.0", "--port", "5000"]
 build = ["bash", "-c", "cd ai_taro_oppa && flutter build web --release"]

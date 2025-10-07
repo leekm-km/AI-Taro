@@ -190,9 +190,9 @@ class _QuestionPageState extends State<QuestionPage> {
     setState(() => _isLoading = true);
 
     try {
-      // 백엔드 API 호출
+      // 백엔드 API 호출 (상대 경로 사용)
       final response = await http.post(
-        Uri.parse('http://localhost:8000/api/tarot'),
+        Uri.parse('/api/tarot'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'character': widget.persona.id,
