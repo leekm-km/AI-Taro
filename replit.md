@@ -122,7 +122,32 @@ The app is configured for **autoscale deployment**:
 
 ## Recent Changes (October 7, 2025)
 
-### 🎴 Latest Update: Enhanced User Flow with Card Reveal & Advertisement Integration
+### 🎨 Latest UI Update: Redesigned Category & Card Selection Pages
+
+**UI Improvements:**
+1. **Fortune Category Selection Page** - Compact & Responsive Design
+   - Changed from 2x4 grid to **single row layout** (한 행에 모든 카테고리)
+   - Uses `Expanded` for perfect responsive fit on all screen sizes (320px+)
+   - Compact design: 24px icons, 10px font, minimal padding
+   - Cute styling: gradient backgrounds, soft borders, subtle shadows
+   - No scrolling required - all 7 categories visible at once
+
+2. **Card Selection Page** - Fan Layout (부채꼴)
+   - Changed from 4x4 grid to **fan-shaped layout** (타로술사가 펼치듯이)
+   - 16 cards spread in an arc from left to right (-50° to +50°)
+   - **Hover effect**: Cards lift up (margin.bottom 15px) when mouse hovers
+   - **Selection effect**: Color change, thicker border, enhanced shadow on click
+   - Smooth animations with `MouseRegion` and `AnimatedContainer`
+
+**Technical Implementation:**
+- Category page: Row + Expanded widgets for equal distribution
+- Card page: Stack + LayoutBuilder + Transform.rotate for fan positioning
+- Sin/cos calculations for arc placement
+- MouseRegion for hover state tracking
+
+---
+
+### 🎴 Previous Update: Enhanced User Flow with Card Reveal & Advertisement Integration
 
 **Complete User Flow:**
 1. Language Selection (한국어/English/中文/ไทย)
