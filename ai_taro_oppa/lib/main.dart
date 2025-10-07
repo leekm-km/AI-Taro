@@ -607,7 +607,7 @@ class _CardSelectionPageState extends State<CardSelectionPage>
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
-              '$_selectedIndices.length / $_cardsToSelect 장 선택됨',
+              '${_selectedIndices.length} / $_cardsToSelect',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
