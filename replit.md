@@ -117,27 +117,53 @@ The app is configured for **autoscale deployment**:
 
 ## Recent Changes (October 7, 2025)
 
-### Critical Bug Fix: Production URL Architecture
-**Problem**: Flutter app hardcoded `http://localhost:8000/api/tarot`, making it fail in production when users' browsers tried calling their own machines instead of the server.
+### Major Feature: Interactive Card Selection & Character Personalities
 
-**Solution**: Unified server architecture
-- **Single FastAPI server** on port 5000 serves both API and static files
-- **Relative URL**: Changed to `/api/tarot` (works in dev and production)
-- **SPA routing**: FileResponse handler returns `index.html` for all non-API routes
-- **OpenAI upgrade**: Fixed httpx compatibility (1.51.0 → 2.2.0)
+**New Features Added:**
 
-### Implementation Details
-- Removed StaticFiles mount, using FileResponse with custom routing logic
-- API routes (`/api/*`, `/health`) prioritized over static file serving
-- Single workflow "Tarot App Server" replaces previous dual-server setup
-- Updated deployment config for autoscale with unified build/run commands
+1. **Card Selection Page**:
+   - Users now select 3 cards from 16 displayed cards before getting a reading
+   - Beautiful left-to-right staggered animation (0.04s delay per card)
+   - Interactive card selection with visual feedback
+   - Selected card information passed to AI for personalized readings
 
-### Verified Working
-✅ Language selection page loads correctly
-✅ API endpoint responds with AI-generated tarot readings
-✅ Korean language response from Lucien Voss character confirmed
-✅ No CORS issues (same-origin architecture)
-✅ Production-ready (no localhost dependencies)
+2. **Character Greetings**:
+   - Each of the 5 characters has unique greeting messages in all 4 languages
+   - Greetings displayed on card selection page
+   - Messages reflect each character's unique personality:
+     * **Lucien Voss**: "별들이 당신의 운명을 드러낼 준비가 되었소..."
+     * **Isolde Hartmann**: "당신의 영혼이 이끄는 대로..."
+     * **Cheongun Seonin**: "음양의 이치가 카드 속에..."
+     * **Linhua**: "후후~ 어떤 카드가 당신을 부르고 있을까요?"
+     * **Thimble Oakroot**: "숲의 지혜가 카드에 깃들어..."
+
+3. **Enhanced AI Personalities**:
+   - Detailed character tone definitions added to backend
+   - Specific speech patterns for each character:
+     * **Lucien**: "~하시오", cold/analytical, astrologer tone
+     * **Isolde**: "~주세요", poetic/emotional, metaphorical
+     * **Cheongun**: "~하시게", proverb-style, yin-yang references
+     * **Linhua**: "~요", playful ("후후~", "어머~"), intuitive
+     * **Thimble**: "~답니다", nature metaphors, warm/practical
+   - Improved system prompts ensure consistent character voice in AI responses
+
+**Updated User Flow:**
+1. Language Selection
+2. Character Selection
+3. **Card Selection** (NEW) - Pick 3 from 16 cards with animation
+4. Question Input
+5. Tarot Reading
+
+### Technical Implementation
+- Flutter: Added `CardSelectionPage` with AnimationController
+- Backend: Enhanced `PERSONAS` with tone/example fields
+- API: Added `selected_cards` field to `TarotRequest`
+- Prompt engineering: Character-specific tone enforcement
+
+### Previous Bug Fix: Production URL Architecture
+- Unified server on port 5000 serving both API and static files
+- Relative URL `/api/tarot` instead of hardcoded localhost
+- OpenAI upgraded to 2.2.0 for httpx compatibility
 
 ## Notes
 - WebGL may fall back to CPU rendering in some environments (normal behavior)
