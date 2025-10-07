@@ -808,10 +808,10 @@ class _CardSelectionPageState extends State<CardSelectionPage>
 
                       final angle = -maxAngle + (index * angleStep);
                       final radians = angle * (3.14159 / 180);
-                      final radius = constraints.maxWidth * 0.4;
+                      final radius = constraints.maxWidth * 0.35;
                       
                       final x = (constraints.maxWidth / 2) + (radius * sin(radians)) - (cardWidth / 2);
-                      final y = (constraints.maxHeight * 0.6) - (radius * cos(radians)) - (cardHeight / 2);
+                      final y = (constraints.maxHeight * 0.75) - (radius * cos(radians)) - (cardHeight / 2);
 
                       final isHovered = _hoveredIndex == index;
                       final isSelected = _selectedIndices.contains(index);
@@ -834,20 +834,19 @@ class _CardSelectionPageState extends State<CardSelectionPage>
                             ),
                           );
                         },
-                        child: MouseRegion(
-                          onEnter: (_) => setState(() => _hoveredIndex = index),
-                          onExit: (_) => setState(() => _hoveredIndex = null),
-                          child: GestureDetector(
-                            onTap: () => _toggleCard(index),
-                            child: Transform.rotate(
-                              angle: radians,
+                        child: Transform.rotate(
+                          angle: radians,
+                          child: MouseRegion(
+                            onEnter: (_) => setState(() => _hoveredIndex = index),
+                            onExit: (_) => setState(() => _hoveredIndex = null),
+                            child: GestureDetector(
+                              onTap: () => _toggleCard(index),
                               child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 200),
-                                margin: EdgeInsets.only(
-                                  bottom: isHovered && !isSelected ? 15.0 : 0.0,
-                                ),
                                 width: cardWidth,
                                 height: cardHeight,
+                                transform: Matrix4.identity()
+                                  ..translate(0.0, isHovered && !isSelected ? -15.0 : 0.0),
                                 decoration: BoxDecoration(
                                   color: isSelected
                                       ? widget.persona.color
@@ -1029,80 +1028,85 @@ class _CardRevealPageState extends State<CardRevealPage>
                                   ? _controller.value * 3.14159
                                   : (isRevealed ? 3.14159 : 0.0);
                               
+                              final showFront = rotationAngle > 3.14159 / 2;
+                              
                               return Transform(
                                 alignment: Alignment.center,
                                 transform: Matrix4.identity()
                                   ..setEntry(3, 2, 0.001)
                                   ..rotateY(rotationAngle),
-                                child: child,
-                              );
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: isRevealed
-                                    ? widget.persona.color
-                                    : Colors.grey,
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.2),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 40,
-                                    height: 40,
-                                    decoration: const BoxDecoration(
-                                      color: Colors.white,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        '${index + 1}',
-                                        style: TextStyle(
-                                          color: widget.persona.color,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18,
-                                        ),
+                                child: Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: showFront
+                                        ? widget.persona.color
+                                        : Colors.grey,
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.2),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
                                       ),
-                                    ),
+                                    ],
                                   ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                  child: Transform(
+                                    alignment: Alignment.center,
+                                    transform: Matrix4.rotationY(showFront ? 3.14159 : 0),
+                                    child: Row(
                                       children: [
-                                        Text(
-                                          isRevealed
-                                              ? selectedCard.card.koreanName
-                                              : '???',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
+                                        Container(
+                                          width: 40,
+                                          height: 40,
+                                          decoration: BoxDecoration(
+                                            color: showFront ? Colors.white : Colors.white30,
+                                            shape: BoxShape.circle,
                                           ),
-                                        ),
-                                        if (isRevealed)
-                                          Text(
-                                            selectedCard.isReversed
-                                                ? '역방향'
-                                                : '정방향',
-                                            style: const TextStyle(
-                                              color: Colors.white70,
-                                              fontSize: 14,
+                                          child: Center(
+                                            child: Text(
+                                              showFront ? '${index + 1}' : '?',
+                                              style: TextStyle(
+                                                color: showFront ? widget.persona.color : Colors.grey.shade700,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 18,
+                                              ),
                                             ),
                                           ),
+                                        ),
+                                        const SizedBox(width: 16),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                showFront
+                                                    ? selectedCard.card.koreanName
+                                                    : '???',
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              if (showFront)
+                                                Text(
+                                                  selectedCard.isReversed
+                                                      ? '역방향'
+                                                      : '정방향',
+                                                  style: const TextStyle(
+                                                    color: Colors.white70,
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                            ],
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
-                                ],
-                              ),
-                            ),
+                                ),
+                              );
+                            },
                           ),
                         ),
                       );
@@ -1155,11 +1159,15 @@ class AdPlaceholderPage extends StatefulWidget {
 
 class _AdPlaceholderPageState extends State<AdPlaceholderPage> {
   int _countdown = 3;
-  bool _isLoading = false;
+  bool _isLoading = true;
+  String? _reading;
+  String? _character;
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
+    _getTarotReading();
     _startCountdown();
   }
 
@@ -1172,15 +1180,13 @@ class _AdPlaceholderPageState extends State<AdPlaceholderPage> {
         if (_countdown > 0) {
           _startCountdown();
         } else {
-          _getTarotReading();
+          _navigateToResult();
         }
       }
     });
   }
 
   Future<void> _getTarotReading() async {
-    setState(() => _isLoading = true);
-
     try {
       final response = await http.post(
         Uri.parse('/api/tarot'),
@@ -1197,35 +1203,51 @@ class _AdPlaceholderPageState extends State<AdPlaceholderPage> {
       if (response.statusCode == 200) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
         if (mounted) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (_) => ResultPage(
-                reading: data['reading'] ?? '결과를 가져올 수 없습니다',
-                character: data['character'] ?? widget.persona.nameKo,
-                category: widget.category,
-                language: widget.language,
-                persona: widget.persona,
-                question: widget.question,
-                selectedCards: widget.selectedCards,
-              ),
-            ),
-          );
+          setState(() {
+            _reading = data['reading'] ?? '결과를 가져올 수 없습니다';
+            _character = data['character'] ?? widget.persona.nameKo;
+            _isLoading = false;
+          });
         }
       } else {
         throw Exception('API 오류: ${response.statusCode}');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('오류가 발생했습니다: $e')),
-        );
-        setState(() => _isLoading = false);
+        setState(() {
+          _errorMessage = '오류가 발생했습니다: $e';
+          _isLoading = false;
+        });
       }
     }
   }
 
+  void _navigateToResult() {
+    if (_reading != null && _character != null) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => ResultPage(
+            reading: _reading!,
+            character: _character!,
+            category: widget.category,
+            language: widget.language,
+            persona: widget.persona,
+            question: widget.question,
+            selectedCards: widget.selectedCards,
+          ),
+        ),
+      );
+    } else if (_errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_errorMessage!)),
+      );
+    }
+  }
+
   void _skipAd() {
-    _getTarotReading();
+    if (!_isLoading) {
+      _navigateToResult();
+    }
   }
 
   @override
@@ -1292,7 +1314,7 @@ class _AdPlaceholderPageState extends State<AdPlaceholderPage> {
   }
 }
 
-class ResultPage extends StatelessWidget {
+class ResultPage extends StatefulWidget {
   final String reading;
   final String character;
   final FortuneCategory category;
@@ -1300,6 +1322,7 @@ class ResultPage extends StatelessWidget {
   final Persona persona;
   final String question;
   final List<SelectedCard> selectedCards;
+  final List<Map<String, String>>? conversationHistory;
 
   const ResultPage({
     super.key,
@@ -1310,7 +1333,54 @@ class ResultPage extends StatelessWidget {
     required this.persona,
     required this.question,
     required this.selectedCards,
+    this.conversationHistory,
   });
+
+  @override
+  State<ResultPage> createState() => _ResultPageState();
+}
+
+class _ResultPageState extends State<ResultPage> {
+  final TextEditingController _followUpController = TextEditingController();
+  late List<Map<String, String>> _conversation;
+
+  @override
+  void initState() {
+    super.initState();
+    _conversation = widget.conversationHistory ?? [];
+    _conversation.add({
+      'role': 'user',
+      'content': widget.question,
+    });
+    _conversation.add({
+      'role': 'assistant',
+      'content': widget.reading,
+    });
+  }
+
+  @override
+  void dispose() {
+    _followUpController.dispose();
+    super.dispose();
+  }
+
+  void _askFollowUpQuestion() {
+    final followUpQuestion = _followUpController.text.trim();
+    if (followUpQuestion.isEmpty) return;
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => FollowUpAdPage(
+          language: widget.language,
+          persona: widget.persona,
+          category: widget.category,
+          question: followUpQuestion,
+          selectedCards: widget.selectedCards,
+          conversationHistory: List.from(_conversation),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1337,7 +1407,7 @@ class ResultPage extends StatelessWidget {
                         const Icon(Icons.person, color: Colors.purple),
                         const SizedBox(width: 8),
                         Text(
-                          character,
+                          widget.character,
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -1347,10 +1417,10 @@ class ResultPage extends StatelessWidget {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        Icon(category.icon, color: Colors.purple),
+                        Icon(widget.category.icon, color: Colors.purple),
                         const SizedBox(width: 8),
                         Text(
-                          category.getName(language),
+                          widget.category.getName(widget.language),
                           style: theme.textTheme.bodyLarge,
                         ),
                       ],
@@ -1375,7 +1445,7 @@ class ResultPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      question,
+                      widget.question,
                       style: theme.textTheme.bodyMedium,
                     ),
                   ],
@@ -1397,7 +1467,7 @@ class ResultPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    ...selectedCards.asMap().entries.map((entry) {
+                    ...widget.selectedCards.asMap().entries.map((entry) {
                       final index = entry.key;
                       final selectedCard = entry.value;
                       return Padding(
@@ -1458,41 +1528,59 @@ class ResultPage extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Text(
-                  reading,
+                  widget.reading,
                   style: theme.textTheme.bodyLarge?.copyWith(height: 1.6),
                 ),
               ),
             ),
             const SizedBox(height: 24),
             FilledButton.icon(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => AdPlaceholderPage(
-                      language: language,
-                      persona: persona,
-                      category: category,
-                      question: '',
-                      selectedCards: selectedCards,
-                    ),
-                  ),
-                ).then((_) {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => QuestionPage(
-                        language: language,
-                        persona: persona,
-                        category: category,
+              onPressed: null,
+              icon: const Icon(Icons.ads_click),
+              label: const Text('광고보고 추가질문하기'),
+              style: FilledButton.styleFrom(
+                backgroundColor: widget.persona.color,
+                minimumSize: const Size(double.infinity, 50),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Card(
+              color: widget.persona.color.withOpacity(0.05),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '추가 질문',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: widget.persona.color,
                       ),
                     ),
-                  );
-                });
-              },
-              icon: const Icon(Icons.question_answer),
-              label: const Text('추가 질문하기'),
-              style: FilledButton.styleFrom(
-                backgroundColor: persona.color,
-                minimumSize: const Size(double.infinity, 50),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: _followUpController,
+                      decoration: InputDecoration(
+                        hintText: '궁금한 점을 입력하세요...',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: widget.persona.color),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: widget.persona.color, width: 2),
+                        ),
+                        suffixIcon: IconButton(
+                          onPressed: _askFollowUpQuestion,
+                          icon: Icon(Icons.send, color: widget.persona.color),
+                        ),
+                      ),
+                      maxLines: 3,
+                      onSubmitted: (_) => _askFollowUpQuestion(),
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 12),
@@ -1503,6 +1591,187 @@ class ResultPage extends StatelessWidget {
               icon: const Icon(Icons.home),
               label: const Text('처음으로'),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class FollowUpAdPage extends StatefulWidget {
+  final String language;
+  final Persona persona;
+  final FortuneCategory category;
+  final String question;
+  final List<SelectedCard> selectedCards;
+  final List<Map<String, String>> conversationHistory;
+
+  const FollowUpAdPage({
+    super.key,
+    required this.language,
+    required this.persona,
+    required this.category,
+    required this.question,
+    required this.selectedCards,
+    required this.conversationHistory,
+  });
+
+  @override
+  State<FollowUpAdPage> createState() => _FollowUpAdPageState();
+}
+
+class _FollowUpAdPageState extends State<FollowUpAdPage> {
+  int _countdown = 3;
+  bool _isLoading = true;
+  String? _reading;
+  String? _character;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _getFollowUpReading();
+    _startCountdown();
+  }
+
+  void _startCountdown() {
+    Future.delayed(const Duration(seconds: 1), () {
+      if (mounted && _countdown > 0) {
+        setState(() {
+          _countdown--;
+        });
+        if (_countdown > 0) {
+          _startCountdown();
+        } else {
+          _navigateToResult();
+        }
+      }
+    });
+  }
+
+  Future<void> _getFollowUpReading() async {
+    try {
+      final response = await http.post(
+        Uri.parse('/api/tarot/followup'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'character': widget.persona.id,
+          'language': widget.language,
+          'category': widget.category.id,
+          'question': widget.question,
+          'selected_cards': widget.selectedCards.map((sc) => sc.toJson()).toList(),
+          'conversation_history': widget.conversationHistory,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(response.bodyBytes));
+        if (mounted) {
+          setState(() {
+            _reading = data['reading'] ?? '결과를 가져올 수 없습니다';
+            _character = data['character'] ?? widget.persona.nameKo;
+            _isLoading = false;
+          });
+        }
+      } else {
+        throw Exception('API 오류: ${response.statusCode}');
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = '오류가 발생했습니다: $e';
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  void _navigateToResult() {
+    if (_reading != null && _character != null) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => ResultPage(
+            reading: _reading!,
+            character: _character!,
+            category: widget.category,
+            language: widget.language,
+            persona: widget.persona,
+            question: widget.question,
+            selectedCards: widget.selectedCards,
+            conversationHistory: widget.conversationHistory,
+          ),
+        ),
+      );
+    } else if (_errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_errorMessage!)),
+      );
+    }
+  }
+
+  void _skipAd() {
+    if (!_isLoading) {
+      _navigateToResult();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black87,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.play_circle_outline,
+              size: 100,
+              color: Colors.white,
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              '광고 플레이스홀더',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Continue to see your reading',
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 32),
+            if (_isLoading)
+              const CircularProgressIndicator(color: Colors.white)
+            else if (_countdown > 0)
+              Column(
+                children: [
+                  Text(
+                    '$_countdown',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 48,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextButton(
+                    onPressed: _skipAd,
+                    child: const Text(
+                      'Skip',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
           ],
         ),
       ),

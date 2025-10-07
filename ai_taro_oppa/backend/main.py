@@ -73,6 +73,14 @@ class TarotRequest(BaseModel):
     question: str
     selected_cards: list[SelectedCardData] = []
 
+class FollowUpRequest(BaseModel):
+    character: str
+    language: str
+    category: str
+    question: str
+    selected_cards: list[SelectedCardData] = []
+    conversation_history: list[dict[str, str]] = []
+
 @app.get("/health")
 async def health():
     return {"status": "Tarot API is running"}
@@ -138,38 +146,30 @@ async def get_tarot_reading(request: TarotRequest):
 
 4. **초점**: {focus}에 집중하여 해석하세요.
 
-5. **답변 구조 (반드시 준수)**:
+5. **답변 구조 (자연스러운 대화 흐름으로)**:
    
-   ### 인사 및 도입 (2-3문장)
-   - 캐릭터 특유의 인사말로 시작
-   - 질문자에 대한 첫 인상이나 느낌 언급
+   먼저 캐릭터 특유의 인사말로 시작하세요. (2-3문장)
+   질문자에 대한 첫 인상이나 느낌을 자연스럽게 언급하세요.
    
-   ### 첫 번째 카드 해석 (200-300자 이상)
-   - 카드 이름과 방향 언급
-   - 이 카드가 상징하는 의미를 상세히 설명
-   - {request.category} 관점에서 이 카드가 무엇을 말하는지
-   - 구체적인 조언이나 통찰 제공
+   그 다음, 첫 번째 카드를 자연스럽게 소개하고 해석하세요. (200-300자 이상)
+   카드 이름과 방향을 언급하되, 대화하듯 자연스럽게 풀어내세요.
+   이 카드가 상징하는 의미를 상세히 설명하고,
+   {request.category} 관점에서 이 카드가 무엇을 말하는지 구체적으로 이야기하세요.
    
-   ### 두 번째 카드 해석 (200-300자 이상)
-   - 카드 이름과 방향 언급
-   - 이 카드가 상징하는 의미를 상세히 설명
-   - 첫 번째 카드와의 연관성 언급
-   - {request.category} 관점에서 이 카드가 무엇을 말하는지
-   - 구체적인 조언이나 통찰 제공
+   이어서 두 번째 카드로 자연스럽게 넘어가세요. (200-300자 이상)
+   카드 이름과 방향을 언급하되, 이야기의 흐름처럼 연결하세요.
+   첫 번째 카드와의 연관성을 자연스럽게 언급하고,
+   {request.category} 관점에서 이 카드의 의미를 깊이 있게 풀어내세요.
    
-   ### 세 번째 카드 해석 (200-300자 이상)
-   - 카드 이름과 방향 언급
-   - 이 카드가 상징하는 의미를 상세히 설명
-   - 앞의 두 카드와의 흐름 연결
-   - {request.category} 관점에서 이 카드가 무엇을 말하는지
-   - 구체적인 조언이나 통찰 제공
+   세 번째 카드도 마찬가지로 자연스럽게 이어가세요. (200-300자 이상)
+   카드 이름과 방향을 언급하되, 앞의 두 카드와 자연스럽게 연결하세요.
+   전체적인 흐름 속에서 이 카드가 어떤 의미를 더하는지 설명하고,
+   {request.category} 관점에서 구체적인 조언을 제공하세요.
    
-   ### 종합 해석 및 조언 (300-400자 이상)
-   - 세 장의 카드가 함께 말하는 전체적인 메시지
-   - {request.category}에 대한 종합적인 전망
-   - 현재 상황에 대한 깊이 있는 통찰
-   - 앞으로 나아갈 방향에 대한 구체적 조언
-   - 캐릭터 특유의 마무리 멘트
+   마지막으로 종합적인 해석과 조언으로 마무리하세요. (300-400자 이상)
+   세 장의 카드가 함께 말하는 전체적인 메시지를 하나의 이야기로 엮으세요.
+   {request.category}에 대한 종합적인 전망과 현재 상황에 대한 깊이 있는 통찰을 제공하고,
+   앞으로 나아갈 방향에 대한 구체적 조언을 담아 캐릭터 특유의 방식으로 마무리하세요.
 
 6. **답변 길이**: 
    - 총 1000자 이상의 상세한 답변을 작성하세요
@@ -201,6 +201,78 @@ async def get_tarot_reading(request: TarotRequest):
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
             ],
+            temperature=0.7
+        )
+        
+        reading = completion.choices[0].message.content or ""
+        
+        return {
+            "reading": reading,
+            "character": persona['name_ko'],
+            "category": request.category
+        }
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"OpenAI API error: {str(e)}")
+
+@app.post("/api/tarot/followup")
+async def get_followup_reading(request: FollowUpRequest):
+    if request.character not in PERSONAS:
+        raise HTTPException(status_code=400, detail="Invalid character")
+    
+    persona = PERSONAS[request.character]
+    
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        raise HTTPException(status_code=500, detail="OpenAI API key not configured")
+    
+    client = OpenAI(api_key=api_key)
+    
+    category_focus = {
+        "general": "종합적인 운세와 전반적인 흐름",
+        "wealth": "재물운과 금전적 상황, 투자나 수입에 대한 조언",
+        "love": "연애운과 감정, 이성과의 관계",
+        "marriage": "결혼과 파트너십, 장기적 관계",
+        "career": "직업운과 커리어, 업무 상황",
+        "education": "학업운과 공부, 학습과 성장",
+        "health": "건강운과 신체적/정신적 상태"
+    }
+    focus = category_focus.get(request.category, "전반적인 운세")
+    
+    system_prompt = f"""당신은 타로 리더 {persona['name_ko']} ({persona['name_en']})입니다.
+
+## 캐릭터 정체성
+- 성격: {persona['style']}
+- **말투 (반드시 준수)**: {persona['tone']}
+- 말투 예시: "{persona['example']}"
+
+## 응답 규칙
+1. **말투 엄수**: {persona['name_ko']}의 독특한 말투를 정확히 유지하세요.
+2. **언어**: {request.language} 언어로만 답변하세요.
+3. **초점**: {focus}에 집중하여 해석하세요.
+4. **대화 흐름**: 이전 대화를 참고하여 자연스럽게 이어가세요.
+5. **답변 형식**: 자연스러운 대화체로 작성하세요. 마크다운 헤더나 구조화된 형식을 사용하지 마세요.
+6. **답변 길이**: 500-800자 정도의 충분한 답변을 제공하세요.
+
+**중요**: 
+- 답변은 반드시 {persona['name_ko']} 캐릭터의 독특한 말투가 명확히 드러나야 합니다
+- 이전 대화 맥락을 고려하여 연속성 있는 답변을 제공하세요
+- 자연스럽게 대화하듯이 답변하세요"""
+
+    messages = [{"role": "system", "content": system_prompt}]
+    
+    for msg in request.conversation_history:
+        messages.append(msg)
+    
+    messages.append({
+        "role": "user",
+        "content": f"{request.question}"
+    })
+
+    try:
+        completion = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=messages,  # type: ignore
             temperature=0.7
         )
         
