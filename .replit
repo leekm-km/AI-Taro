@@ -10,6 +10,10 @@ packages = ["flutter", "dart"]
 localPort = 5000
 externalPort = 80
 
+[[ports]]
+localPort = 40775
+externalPort = 3000
+
 [workflows]
 runButton = "Project"
 
@@ -37,4 +41,4 @@ outputType = "webview"
 [deployment]
 deploymentTarget = "autoscale"
 run = ["uvicorn", "ai_taro_oppa.backend.main:app", "--host", "0.0.0.0", "--port", "5000"]
-build = ["bash", "-c", "cd ai_taro_oppa && flutter build web --release"]
+build = ["bash", "build.sh"]
