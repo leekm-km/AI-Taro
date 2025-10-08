@@ -11,8 +11,8 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 45873
-externalPort = 3001
+localPort = 42329
+externalPort = 3000
 
 [workflows]
 runButton = "Project"
@@ -40,5 +40,5 @@ outputType = "webview"
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["uvicorn", "ai_taro_oppa.backend.main:app", "--host", "0.0.0.0"]
+run = ["uvicorn", "ai_taro_oppa.backend.main:app", "--host", "0.0.0.0", "--port", "5000"]
 build = ["sh", "-c", "cd \"$REPL_HOME/ai_taro_oppa\" && flutter pub get && flutter build web --release"]
