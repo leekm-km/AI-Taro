@@ -273,8 +273,11 @@ class _CharacterSelectPageState extends State<CharacterSelectPage> {
                 child: ListTile(
                   leading: CircleAvatar(
                     radius: 30,
-                    backgroundColor: Colors.transparent,
+                    backgroundColor: persona.color.withOpacity(0.3),
                     backgroundImage: AssetImage(imagePath),
+                    onBackgroundImageError: (exception, stackTrace) {
+                      print('Error loading image: $imagePath - $exception');
+                    },
                   ),
                   title: Text(
                     persona.nameKo,
@@ -357,8 +360,11 @@ class _FortuneCategoryPageState extends State<FortuneCategoryPage> {
               children: [
                 CircleAvatar(
                   radius: 40,
-                  backgroundColor: Colors.transparent,
+                  backgroundColor: widget.persona.color.withOpacity(0.3),
                   backgroundImage: AssetImage(_personaImage),
+                  onBackgroundImageError: (exception, stackTrace) {
+                    print('Error loading image: $_personaImage - $exception');
+                  },
                 ),
                 const SizedBox(height: 12),
                 Text(
@@ -554,8 +560,11 @@ class _QuestionPageState extends State<QuestionPage> {
                   children: [
                     CircleAvatar(
                       radius: 50,
-                      backgroundColor: Colors.transparent,
+                      backgroundColor: widget.persona.color.withOpacity(0.3),
                       backgroundImage: AssetImage(_personaImage),
+                      onBackgroundImageError: (exception, stackTrace) {
+                        print('Error loading image: $_personaImage - $exception');
+                      },
                     ),
                     const SizedBox(height: 12),
                     Text(
@@ -818,8 +827,11 @@ class _CardSelectionPageState extends State<CardSelectionPage>
               children: [
                 CircleAvatar(
                   radius: 40,
-                  backgroundColor: Colors.transparent,
+                  backgroundColor: widget.persona.color.withOpacity(0.3),
                   backgroundImage: AssetImage(_personaImage),
+                  onBackgroundImageError: (exception, stackTrace) {
+                    print('Error loading image: $_personaImage - $exception');
+                  },
                 ),
                 const SizedBox(height: 12),
                 Text(
