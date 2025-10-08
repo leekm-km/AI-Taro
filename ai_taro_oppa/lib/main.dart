@@ -46,8 +46,14 @@ class Persona {
   final Color color;
   final String description;
   final Map<String, String> greetings;
+  final List<String> imagePaths;
   
-  const Persona(this.id, this.nameKo, this.nameEn, this.color, this.description, this.greetings);
+  const Persona(this.id, this.nameKo, this.nameEn, this.color, this.description, this.greetings, this.imagePaths);
+  
+  String getRandomImage() {
+    final random = Random();
+    return imagePaths[random.nextInt(imagePaths.length)];
+  }
 }
 
 const List<Persona> personas = [
@@ -56,31 +62,49 @@ const List<Persona> personas = [
     'en': 'The stars are ready to reveal your fate. Choose your cards.',
     'zh': '星辰已准备好揭示你的命运。选择你的牌。',
     'th': 'ดวงดาวพร้อมที่จะเปิดเผยชะตาของคุณแล้ว เลือกไพ่ของคุณ'
-  }),
+  }, [
+    'assets/characters/루시앙1.jpg', 'assets/characters/루시앙2.png', 'assets/characters/루시앙3.png',
+    'assets/characters/루시앙4.png', 'assets/characters/루시앙5.png', 'assets/characters/루시앙-타로1.jpg',
+    'assets/characters/루시앙-타로2.jpg', 'assets/characters/루시앙-타로3.jpg', 'assets/characters/루시앙-타로4.jpg',
+  ]),
   Persona('isolde', '이졸데 하르트만', 'Isolde Hartmann', Color(0xFF6d235c), '시적이고 감정적인 예언자', {
     'ko': '당신의 영혼이 이끄는 대로... 카드를 선택해 주세요.',
     'en': 'As your soul guides you... please choose your cards.',
     'zh': '随心而动...请选择你的牌。',
     'th': 'ตามที่จิตวิญญาณของคุณนำทาง... โปรดเลือกไพ่ของคุณ'
-  }),
+  }, [
+    'assets/characters/이졸데1.jpg', 'assets/characters/이졸데-타로1.jpg',
+    'assets/characters/이졸데-타로2.jpg', 'assets/characters/이졸데-타로3.jpg',
+  ]),
   Persona('cheongun', '청운 선인', 'Cheongun Seonin', Color(0xFF5aa7c4), '사유적이고 느긋한 도사', {
     'ko': '음양의 이치가 카드 속에 담겨 있소. 마음 가는 대로 고르시게.',
     'en': 'The principle of yin and yang resides in the cards. Choose as your heart desires.',
     'zh': '阴阳之理蕴含在牌中。随心所欲地选择吧。',
     'th': 'หลักการของหยินและหยางอยู่ในไพ่ เลือกตามที่ใจต้องการ'
-  }),
+  }, [
+    'assets/characters/청운1.png', 'assets/characters/청운2.jpg', 'assets/characters/청운3.jpg',
+    'assets/characters/청운4.png', 'assets/characters/청운5.png',
+  ]),
   Persona('linhua', '린화', 'Linhua', Color(0xFFa01828), '장난스럽고 신비로운 점쟁이', {
     'ko': '후후~ 어떤 카드가 당신을 부르고 있을까요? 직감을 믿어보세요!',
     'en': 'Hehe~ Which cards are calling you? Trust your intuition!',
     'zh': '呵呵~ 哪些牌在呼唤你呢？相信你的直觉！',
     'th': 'ฮิฮิ~ ไพ่ใบไหนกำลังเรียกคุณอยู่? เชื่อสัญชาตญาณของคุณ!'
-  }),
+  }, [
+    'assets/characters/린화1.jpg', 'assets/characters/린화2.jpg', 'assets/characters/린화3.jpg',
+    'assets/characters/린화4.jpg', 'assets/characters/린화-타로1.png', 'assets/characters/린화-타로2.png',
+    'assets/characters/린화-타로3.png', 'assets/characters/린화-타로4.png',
+  ]),
   Persona('thimble', '팀블 오크루트', 'Thimble Oakroot', Color(0xFF6a8a3a), '따뜻하고 재치있는 자연주의자', {
     'ko': '숲의 지혜가 카드에 깃들어 있답니다. 편안하게 선택해보세요.',
     'en': 'The wisdom of the forest dwells in the cards. Choose comfortably.',
     'zh': '森林的智慧蕴藏在牌中。放松地选择吧。',
     'th': 'ภูมิปัญญาของป่าอยู่ในไพ่ เลือกอย่างสบายใจ'
-  }),
+  }, [
+    'assets/characters/팀블1.png', 'assets/characters/팀블2.png', 'assets/characters/팀블3.png',
+    'assets/characters/팀블4.png', 'assets/characters/팀블5.png', 'assets/characters/팀블-타로1.jpg',
+    'assets/characters/팀블-타로2.jpg',
+  ]),
 ];
 
 class FortuneCategory {
@@ -201,10 +225,25 @@ class LanguageSelectPage extends StatelessWidget {
   }
 }
 
-class CharacterSelectPage extends StatelessWidget {
+class CharacterSelectPage extends StatefulWidget {
   final String language;
 
   const CharacterSelectPage({super.key, required this.language});
+
+  @override
+  State<CharacterSelectPage> createState() => _CharacterSelectPageState();
+}
+
+class _CharacterSelectPageState extends State<CharacterSelectPage> {
+  final Map<String, String> _personaImages = {};
+
+  @override
+  void initState() {
+    super.initState();
+    for (var persona in personas) {
+      _personaImages[persona.id] = persona.getRandomImage();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -223,11 +262,8 @@ class CharacterSelectPage extends StatelessWidget {
                 margin: const EdgeInsets.symmetric(vertical: 8),
                 child: ListTile(
                   leading: CircleAvatar(
-                    backgroundColor: persona.color,
-                    child: Text(
-                      persona.nameKo[0],
-                      style: const TextStyle(color: Colors.white),
-                    ),
+                    radius: 30,
+                    backgroundImage: AssetImage(_personaImages[persona.id]!),
                   ),
                   title: Text(
                     persona.nameKo,
@@ -242,7 +278,7 @@ class CharacterSelectPage extends StatelessWidget {
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (_) => FortuneCategoryPage(
-                          language: language,
+                          language: widget.language,
                           persona: persona,
                         ),
                       ),
@@ -258,7 +294,7 @@ class CharacterSelectPage extends StatelessWidget {
   }
 }
 
-class FortuneCategoryPage extends StatelessWidget {
+class FortuneCategoryPage extends StatefulWidget {
   final String language;
   final Persona persona;
 
@@ -269,14 +305,27 @@ class FortuneCategoryPage extends StatelessWidget {
   });
 
   @override
+  State<FortuneCategoryPage> createState() => _FortuneCategoryPageState();
+}
+
+class _FortuneCategoryPageState extends State<FortuneCategoryPage> {
+  late String _personaImage;
+
+  @override
+  void initState() {
+    super.initState();
+    _personaImage = widget.persona.getRandomImage();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: persona.color.withOpacity(0.05),
+      backgroundColor: widget.persona.color.withOpacity(0.05),
       appBar: AppBar(
         title: const Text('운세 카테고리 선택'),
-        backgroundColor: persona.color,
+        backgroundColor: widget.persona.color,
         foregroundColor: Colors.white,
       ),
       body: Column(
@@ -286,37 +335,29 @@ class FortuneCategoryPage extends StatelessWidget {
             padding: const EdgeInsets.all(24),
             margin: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: persona.color.withOpacity(0.1),
+              color: widget.persona.color.withOpacity(0.1),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: persona.color.withOpacity(0.3)),
+              border: Border.all(color: widget.persona.color.withOpacity(0.3)),
             ),
             child: Column(
               children: [
                 CircleAvatar(
-                  radius: 30,
-                  backgroundColor: persona.color,
-                  child: Text(
-                    persona.nameKo[0],
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  radius: 40,
+                  backgroundImage: AssetImage(_personaImage),
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  persona.nameKo,
+                  widget.persona.nameKo,
                   style: theme.textTheme.titleLarge?.copyWith(
-                    color: persona.color,
+                    color: widget.persona.color,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  persona.description,
+                  widget.persona.description,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: persona.color.withOpacity(0.8),
+                    color: widget.persona.color.withOpacity(0.8),
                   ),
                 ),
               ],
@@ -328,7 +369,7 @@ class FortuneCategoryPage extends StatelessWidget {
               '어떤 운세를 보시겠습니까?',
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: persona.color,
+                color: widget.persona.color,
               ),
             ),
           ),
@@ -351,8 +392,8 @@ class FortuneCategoryPage extends StatelessWidget {
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (_) => QuestionPage(
-                            language: language,
-                            persona: persona,
+                            language: widget.language,
+                            persona: widget.persona,
                             category: category,
                           ),
                         ),
@@ -367,17 +408,17 @@ class FortuneCategoryPage extends StatelessWidget {
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            persona.color.withOpacity(0.15),
-                            persona.color.withOpacity(0.08),
+                            widget.persona.color.withOpacity(0.15),
+                            widget.persona.color.withOpacity(0.08),
                           ],
                         ),
                         border: Border.all(
-                          color: persona.color.withOpacity(0.3),
+                          color: widget.persona.color.withOpacity(0.3),
                           width: 2,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: persona.color.withOpacity(0.1),
+                            color: widget.persona.color.withOpacity(0.1),
                             blurRadius: 6,
                             offset: const Offset(0, 3),
                           ),
@@ -389,16 +430,16 @@ class FortuneCategoryPage extends StatelessWidget {
                           Icon(
                             category.icon,
                             size: 24,
-                            color: persona.color,
+                            color: widget.persona.color,
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            category.getName(language),
+                            category.getName(widget.language),
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
-                              color: persona.color,
+                              color: widget.persona.color,
                               height: 1.1,
                             ),
                             maxLines: 2,
@@ -437,6 +478,13 @@ class QuestionPage extends StatefulWidget {
 
 class _QuestionPageState extends State<QuestionPage> {
   final TextEditingController _questionController = TextEditingController();
+  late String _personaImage;
+
+  @override
+  void initState() {
+    super.initState();
+    _personaImage = widget.persona.getRandomImage();
+  }
 
   @override
   void dispose() {
@@ -486,15 +534,8 @@ class _QuestionPageState extends State<QuestionPage> {
                 child: Column(
                   children: [
                     CircleAvatar(
-                      radius: 40,
-                      backgroundColor: widget.persona.color,
-                      child: Text(
-                        widget.persona.nameKo[0],
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 32,
-                        ),
-                      ),
+                      radius: 50,
+                      backgroundImage: AssetImage(_personaImage),
                     ),
                     const SizedBox(height: 12),
                     Text(
@@ -591,6 +632,7 @@ class _CardSelectionPageState extends State<CardSelectionPage>
   final Set<int> _selectedIndices = {};
   late final int _cardsToSelect;
   int? _hoveredIndex;
+  late String _personaImage;
   
   List<TarotCard> _allCards = [];
   List<TarotCard> _shuffledDeck = [];
@@ -602,6 +644,7 @@ class _CardSelectionPageState extends State<CardSelectionPage>
   void initState() {
     super.initState();
     _cardsToSelect = widget.category.cardCount;
+    _personaImage = widget.persona.getRandomImage();
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
@@ -751,16 +794,8 @@ class _CardSelectionPageState extends State<CardSelectionPage>
             child: Column(
               children: [
                 CircleAvatar(
-                  radius: 30,
-                  backgroundColor: widget.persona.color,
-                  child: Text(
-                    widget.persona.nameKo[0],
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  radius: 40,
+                  backgroundImage: AssetImage(_personaImage),
                 ),
                 const SizedBox(height: 12),
                 Text(
