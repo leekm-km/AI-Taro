@@ -67,9 +67,9 @@ const List<Persona> personas = [
     'zh': '星辰已准备好揭示你的命运。选择你的牌。',
     'th': 'ดวงดาวพร้อมที่จะเปิดเผยชะตาของคุณแล้ว เลือกไพ่ของคุณ'
   }, [
-    'assets/characters/루시앙1.jpg', 'assets/characters/루시앙2.png', 'assets/characters/루시앙3.png',
-    'assets/characters/루시앙4.png', 'assets/characters/루시앙5.png', 'assets/characters/루시앙-타로1.jpg',
-    'assets/characters/루시앙-타로2.jpg', 'assets/characters/루시앙-타로3.jpg', 'assets/characters/루시앙-타로4.jpg',
+    'assets/characters/lucien1.jpg', 'assets/characters/lucien2.png', 'assets/characters/lucien3.png',
+    'assets/characters/lucien4.png', 'assets/characters/lucien5.png', 'assets/characters/lucien-tarot1.jpg',
+    'assets/characters/lucien-tarot2.jpg', 'assets/characters/lucien-tarot3.jpg', 'assets/characters/lucien-tarot4.jpg',
   ]),
   Persona('isolde', '이졸데 하르트만', 'Isolde Hartmann', Color(0xFF6d235c), '시적이고 감정적인 예언자', {
     'ko': '당신의 영혼이 이끄는 대로... 카드를 선택해 주세요.',
@@ -77,8 +77,8 @@ const List<Persona> personas = [
     'zh': '随心而动...请选择你的牌。',
     'th': 'ตามที่จิตวิญญาณของคุณนำทาง... โปรดเลือกไพ่ของคุณ'
   }, [
-    'assets/characters/이졸데1.jpg', 'assets/characters/이졸데-타로1.jpg',
-    'assets/characters/이졸데-타로2.jpg', 'assets/characters/이졸데-타로3.jpg',
+    'assets/characters/isolde1.jpg', 'assets/characters/isolde-tarot1.jpg',
+    'assets/characters/isolde-tarot2.jpg', 'assets/characters/isolde-tarot3.jpg',
   ]),
   Persona('cheongun', '청운 선인', 'Cheongun Seonin', Color(0xFF5aa7c4), '사유적이고 느긋한 도사', {
     'ko': '음양의 이치가 카드 속에 담겨 있소. 마음 가는 대로 고르시게.',
@@ -86,8 +86,8 @@ const List<Persona> personas = [
     'zh': '阴阳之理蕴含在牌中。随心所欲地选择吧。',
     'th': 'หลักการของหยินและหยางอยู่ในไพ่ เลือกตามที่ใจต้องการ'
   }, [
-    'assets/characters/청운1.png', 'assets/characters/청운2.jpg', 'assets/characters/청운3.jpg',
-    'assets/characters/청운4.png', 'assets/characters/청운5.png',
+    'assets/characters/cheongun1.png', 'assets/characters/cheongun2.jpg', 'assets/characters/cheongun3.jpg',
+    'assets/characters/cheongun4.png', 'assets/characters/cheongun5.png',
   ]),
   Persona('linhua', '린화', 'Linhua', Color(0xFFa01828), '장난스럽고 신비로운 점쟁이', {
     'ko': '후후~ 어떤 카드가 당신을 부르고 있을까요? 직감을 믿어보세요!',
@@ -95,9 +95,9 @@ const List<Persona> personas = [
     'zh': '呵呵~ 哪些牌在呼唤你呢？相信你的直觉！',
     'th': 'ฮิฮิ~ ไพ่ใบไหนกำลังเรียกคุณอยู่? เชื่อสัญชาตญาณของคุณ!'
   }, [
-    'assets/characters/린화1.jpg', 'assets/characters/린화2.jpg', 'assets/characters/린화3.jpg',
-    'assets/characters/린화4.jpg', 'assets/characters/린화-타로1.png', 'assets/characters/린화-타로2.png',
-    'assets/characters/린화-타로3.png', 'assets/characters/린화-타로4.png',
+    'assets/characters/linhua1.jpg', 'assets/characters/linhua2.jpg', 'assets/characters/linhua3.jpg',
+    'assets/characters/linhua4.jpg', 'assets/characters/linhua-tarot1.png', 'assets/characters/linhua-tarot2.png',
+    'assets/characters/linhua-tarot3.png', 'assets/characters/linhua-tarot4.png',
   ]),
   Persona('thimble', '팀블 오크루트', 'Thimble Oakroot', Color(0xFF6a8a3a), '따뜻하고 재치있는 자연주의자', {
     'ko': '숲의 지혜가 카드에 깃들어 있답니다. 편안하게 선택해보세요.',
@@ -105,9 +105,9 @@ const List<Persona> personas = [
     'zh': '森林的智慧蕴藏在牌中。放松地选择吧。',
     'th': 'ภูมิปัญญาของป่าอยู่ในไพ่ เลือกอย่างสบายใจ'
   }, [
-    'assets/characters/팀블1.png', 'assets/characters/팀블2.png', 'assets/characters/팀블3.png',
-    'assets/characters/팀블4.png', 'assets/characters/팀블5.png', 'assets/characters/팀블-타로1.jpg',
-    'assets/characters/팀블-타로2.jpg',
+    'assets/characters/thimble1.png', 'assets/characters/thimble2.png', 'assets/characters/thimble3.png',
+    'assets/characters/thimble4.png', 'assets/characters/thimble5.png', 'assets/characters/thimble-tarot1.jpg',
+    'assets/characters/thimble-tarot2.jpg',
   ]),
 ];
 
