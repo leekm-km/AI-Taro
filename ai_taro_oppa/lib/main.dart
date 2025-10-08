@@ -257,7 +257,7 @@ class _CharacterSelectPageState extends State<CharacterSelectPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('캐릭터를 선택하세요')),
+      appBar: AppBar(title: const Text('어떤 타로술사에게 질문하시겠어요?')),
       body: ListView.builder(
         padding: const EdgeInsets.all(20),
         itemCount: personas.length,
@@ -358,6 +358,23 @@ class _FortuneCategoryPageState extends State<FortuneCategoryPage> {
     _personaImage = widget.persona.getRandomImage(exclude: widget.usedImages);
   }
 
+  String _getCategoryPrompt() {
+    switch (widget.persona.id) {
+      case 'lucien':
+        return '나를 선택했소... 좋은 선택이오. 그럼, 어떤 운세를 보고 싶소?';
+      case 'isolde':
+        return '나를 선택하셨군요... 감사합니다. 어떤 운세가 궁금하신가요?';
+      case 'cheongun':
+        return '호오, 이 몸을 선택하셨소이다. 그럼 어떤 운세를 점쳐드릴까요?';
+      case 'linhua':
+        return '저를 선택해주셔서 기뻐요! 어떤 운세를 봐드릴까요?';
+      case 'thimble':
+        return '저를 선택해주셨네요, 감사해요! 어떤 운세가 궁금하신가요?';
+      default:
+        return '어떤 운세를 보시겠습니까?';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -423,11 +440,12 @@ class _FortuneCategoryPageState extends State<FortuneCategoryPage> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
-              '어떤 운세를 보시겠습니까?',
+              _getCategoryPrompt(),
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: widget.persona.color,
               ),
+              textAlign: TextAlign.center,
             ),
           ),
           const SizedBox(height: 24),
@@ -437,9 +455,9 @@ class _FortuneCategoryPageState extends State<FortuneCategoryPage> {
               child: GridView.builder(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 4,
-                  childAspectRatio: 0.9,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
+                  childAspectRatio: 0.85,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
                 ),
                 itemCount: fortuneCategories.length,
                 itemBuilder: (context, index) {
@@ -457,48 +475,51 @@ class _FortuneCategoryPageState extends State<FortuneCategoryPage> {
                         ),
                       );
                     },
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(20),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(20),
                         gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                           colors: [
-                            widget.persona.color.withOpacity(0.15),
                             widget.persona.color.withOpacity(0.08),
+                            widget.persona.color.withOpacity(0.02),
                           ],
                         ),
                         border: Border.all(
-                          color: widget.persona.color.withOpacity(0.3),
-                          width: 2,
+                          color: widget.persona.color.withOpacity(0.2),
+                          width: 1.5,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: widget.persona.color.withOpacity(0.1),
-                            blurRadius: 6,
-                            offset: const Offset(0, 3),
+                            color: widget.persona.color.withOpacity(0.08),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                            spreadRadius: 0,
                           ),
                         ],
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
                             category.icon,
-                            size: 24,
-                            color: widget.persona.color,
+                            size: 32,
+                            color: widget.persona.color.withOpacity(0.9),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 8),
                           Text(
                             category.getName(widget.language),
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: widget.persona.color,
-                              height: 1.1,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: widget.persona.color.withOpacity(0.9),
+                              height: 1.2,
+                              letterSpacing: -0.3,
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -550,6 +571,23 @@ class _QuestionPageState extends State<QuestionPage> {
   void dispose() {
     _questionController.dispose();
     super.dispose();
+  }
+
+  String _getQuestionPrompt() {
+    switch (widget.persona.id) {
+      case 'lucien':
+        return '그래, 무엇이 궁금하오?';
+      case 'isolde':
+        return '무엇이 궁금하신가요...?';
+      case 'cheongun':
+        return '무엇을 알고 싶으신가?';
+      case 'linhua':
+        return '뭐가 궁금하세요?';
+      case 'thimble':
+        return '어떤 게 궁금하신가요?';
+      default:
+        return '무엇이 궁금하신가요?';
+    }
   }
 
   void _proceedToCardSelection() {
@@ -648,9 +686,10 @@ class _QuestionPageState extends State<QuestionPage> {
             ),
             const SizedBox(height: 24),
             Text(
-              '무엇이 궁금하신가요?',
+              _getQuestionPrompt(),
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
+                color: widget.persona.color,
               ),
             ),
             const SizedBox(height: 12),
