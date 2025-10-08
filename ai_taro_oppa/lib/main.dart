@@ -899,228 +899,236 @@ class _CardSelectionPageState extends State<CardSelectionPage>
         backgroundColor: widget.persona.color,
         foregroundColor: Colors.white,
       ),
-      body: Column(
-        children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(24),
-            margin: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: widget.persona.color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: widget.persona.color.withOpacity(0.3)),
-            ),
-            child: Column(
-              children: [
-                SizedBox(
-                  width: 200,
-                  height: 200,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      image: DecorationImage(
-                        image: AssetImage(_personaImage),
-                        fit: BoxFit.cover,
-                        onError: (exception, stackTrace) {
-                          print('Error loading image: $_personaImage - $exception');
-                        },
-                      ),
-                      border: Border.all(
-                        color: widget.persona.color.withOpacity(0.3),
-                        width: 2,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(24),
+              margin: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: widget.persona.color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: widget.persona.color.withOpacity(0.3)),
+              ),
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: 200,
+                    height: 200,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        image: DecorationImage(
+                          image: AssetImage(_personaImage),
+                          fit: BoxFit.cover,
+                          onError: (exception, stackTrace) {
+                            print('Error loading image: $_personaImage - $exception');
+                          },
+                        ),
+                        border: Border.all(
+                          color: widget.persona.color.withOpacity(0.3),
+                          width: 2,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  greeting,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: widget.persona.color,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      widget.category.icon,
+                  const SizedBox(height: 12),
+                  Text(
+                    greeting,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
                       color: widget.persona.color,
-                      size: 20,
+                      fontWeight: FontWeight.w500,
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      widget.category.getName(widget.language),
-                      style: TextStyle(
-                        fontSize: 16,
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        widget.category.icon,
                         color: widget.persona.color,
-                        fontWeight: FontWeight.bold,
+                        size: 20,
                       ),
+                      const SizedBox(width: 8),
+                      Text(
+                        widget.category.getName(widget.language),
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: widget.persona.color,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                children: [
+                  Text(
+                    _getSelectionGuideMessage(),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: widget.persona.color.withOpacity(0.8),
                     ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              children: [
-                Text(
-                  _getSelectionGuideMessage(),
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: widget.persona.color.withOpacity(0.8),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '${_selectedIndices.length} / $_cardsToSelect',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: widget.persona.color,
+                  const SizedBox(height: 8),
+                  Text(
+                    '${_selectedIndices.length} / $_cardsToSelect',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: widget.persona.color,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
 
-          const SizedBox(height: 12),
+            const SizedBox(height: 12),
 
-          Expanded(
-            child: Center(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final cardWidth = 80.0;
-                  final cardHeight = 120.0;
-                  final totalCards = _displayedCards.length;
-                  final maxAngle = 45.0;
-                  final angleStep = (maxAngle * 2) / (totalCards - 1);
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final cardWidth = 80.0;
+                final cardHeight = 120.0;
+                final totalCards = _displayedCards.length;
+                final maxAngle = 45.0;
+                final angleStep = (maxAngle * 2) / (totalCards - 1);
+                final radius = constraints.maxWidth * 0.42;
+                
+                final maxCardY = 80 + (radius * 0.3) + cardHeight + 20;
+                final buttonY = maxCardY + 30;
 
-                  return Stack(
+                return SizedBox(
+                  height: buttonY + 80,
+                  child: Stack(
                     clipBehavior: Clip.none,
-                    children: List.generate(totalCards, (index) {
-                      final delay = index * 0.04;
-                      final intervalEnd = (delay + 0.3).clamp(0.0, 1.0);
-                      final animation = Tween<double>(begin: 0.0, end: 1.0).animate(
-                        CurvedAnimation(
-                          parent: _animationController,
-                          curve: Interval(
-                            delay,
-                            intervalEnd,
-                            curve: Curves.easeOutBack,
-                          ),
-                        ),
-                      );
-
-                      final angle = -maxAngle + (index * angleStep);
-                      final radians = angle * (3.14159 / 180);
-                      final radius = constraints.maxWidth * 0.42;
-                      
-                      final x = (constraints.maxWidth / 2) + (radius * sin(radians)) - (cardWidth / 2);
-                      final y = 80 + (radius * (1 - cos(radians)));
-
-                      final isHovered = _hoveredIndex == index;
-                      final isSelected = _selectedIndices.contains(index);
-
-                      return AnimatedBuilder(
-                        animation: animation,
-                        builder: (context, child) {
-                          final scale = animation.value;
-                          final opacity = animation.value;
-
-                          return Positioned(
-                            left: x,
-                            top: y,
-                            child: Transform.scale(
-                              scale: scale,
-                              child: Opacity(
-                                opacity: opacity,
-                                child: child,
-                              ),
+                    children: [
+                      ...List.generate(totalCards, (index) {
+                        final delay = index * 0.04;
+                        final intervalEnd = (delay + 0.3).clamp(0.0, 1.0);
+                        final animation = Tween<double>(begin: 0.0, end: 1.0).animate(
+                          CurvedAnimation(
+                            parent: _animationController,
+                            curve: Interval(
+                              delay,
+                              intervalEnd,
+                              curve: Curves.easeOutBack,
                             ),
-                          );
-                        },
-                        child: Transform.rotate(
-                          angle: radians,
-                          child: MouseRegion(
-                            onEnter: (_) => setState(() => _hoveredIndex = index),
-                            onExit: (_) => setState(() => _hoveredIndex = null),
-                            child: GestureDetector(
-                              onTap: () => _toggleCard(index),
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 200),
-                                width: cardWidth,
-                                height: cardHeight,
-                                transform: Matrix4.identity()
-                                  ..translate(0.0, isHovered && !isSelected ? -15.0 : 0.0),
-                                decoration: BoxDecoration(
-                                  color: isSelected
-                                      ? widget.persona.color
-                                      : Colors.white,
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: widget.persona.color,
-                                    width: isSelected ? 3 : (isHovered ? 2 : 1),
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: isSelected
-                                          ? widget.persona.color.withOpacity(0.5)
-                                          : (isHovered
-                                              ? widget.persona.color.withOpacity(0.3)
-                                              : Colors.black.withOpacity(0.1)),
-                                      blurRadius: isSelected ? 12 : (isHovered ? 10 : 4),
-                                      offset: const Offset(0, 4),
-                                      spreadRadius: isSelected ? 2 : 0,
-                                    ),
-                                  ],
+                          ),
+                        );
+
+                        final angle = -maxAngle + (index * angleStep);
+                        final radians = angle * (3.14159 / 180);
+                        
+                        final x = (constraints.maxWidth / 2) + (radius * sin(radians)) - (cardWidth / 2);
+                        final y = 80 + (radius * (1 - cos(radians)));
+
+                        final isHovered = _hoveredIndex == index;
+                        final isSelected = _selectedIndices.contains(index);
+
+                        return AnimatedBuilder(
+                          animation: animation,
+                          builder: (context, child) {
+                            final scale = animation.value;
+                            final opacity = animation.value;
+
+                            return Positioned(
+                              left: x,
+                              top: y,
+                              child: Transform.scale(
+                                scale: scale,
+                                child: Opacity(
+                                  opacity: opacity,
+                                  child: child,
                                 ),
-                                child: Center(
-                                  child: Icon(
-                                    Icons.auto_awesome,
+                              ),
+                            );
+                          },
+                          child: Transform.rotate(
+                            angle: radians,
+                            child: MouseRegion(
+                              onEnter: (_) => setState(() => _hoveredIndex = index),
+                              onExit: (_) => setState(() => _hoveredIndex = null),
+                              child: GestureDetector(
+                                onTap: () => _toggleCard(index),
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 200),
+                                  width: cardWidth,
+                                  height: cardHeight,
+                                  transform: Matrix4.identity()
+                                    ..translate(0.0, isHovered && !isSelected ? -15.0 : 0.0),
+                                  decoration: BoxDecoration(
                                     color: isSelected
-                                        ? Colors.white
-                                        : widget.persona.color,
-                                    size: 28,
+                                        ? widget.persona.color
+                                        : Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: widget.persona.color,
+                                      width: isSelected ? 3 : (isHovered ? 2 : 1),
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: isSelected
+                                            ? widget.persona.color.withOpacity(0.5)
+                                            : (isHovered
+                                                ? widget.persona.color.withOpacity(0.3)
+                                                : Colors.black.withOpacity(0.1)),
+                                        blurRadius: isSelected ? 12 : (isHovered ? 10 : 4),
+                                        offset: const Offset(0, 4),
+                                        spreadRadius: isSelected ? 2 : 0,
+                                      ),
+                                    ],
+                                  ),
+                                  child: Center(
+                                    child: Icon(
+                                      Icons.auto_awesome,
+                                      color: isSelected
+                                          ? Colors.white
+                                          : widget.persona.color,
+                                      size: 28,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
+                        );
+                      }),
+                      Positioned(
+                        left: 16,
+                        right: 16,
+                        top: buttonY,
+                        child: FilledButton(
+                          onPressed: _selectedIndices.length == _cardsToSelect
+                              ? _continueToReveal
+                              : null,
+                          style: FilledButton.styleFrom(
+                            backgroundColor: widget.persona.color,
+                            minimumSize: const Size(double.infinity, 50),
+                          ),
+                          child: const Text(
+                            '선택 완료',
+                            style: TextStyle(fontSize: 18),
+                          ),
                         ),
-                      );
-                    }),
-                  );
-                },
-              ),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
-          ),
-
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: FilledButton(
-              onPressed: _selectedIndices.length == _cardsToSelect
-                  ? _continueToReveal
-                  : null,
-              style: FilledButton.styleFrom(
-                backgroundColor: widget.persona.color,
-                minimumSize: const Size(double.infinity, 50),
-              ),
-              child: const Text(
-                '선택 완료',
-                style: TextStyle(fontSize: 18),
-              ),
-            ),
-          ),
-        ],
+            const SizedBox(height: 16),
+          ],
+        ),
       ),
     );
   }
