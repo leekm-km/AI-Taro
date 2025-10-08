@@ -771,13 +771,27 @@ class _CardSelectionPageState extends State<CardSelectionPage>
 
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              '${_selectedIndices.length} / $_cardsToSelect',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: widget.persona.color,
-              ),
+            child: Column(
+              children: [
+                Text(
+                  '${widget.category.getName(widget.language)}을 고르셨군요! 그럼 $_cardsToSelect장을 고르세요!',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: widget.persona.color.withOpacity(0.8),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '${_selectedIndices.length} / $_cardsToSelect',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: widget.persona.color,
+                  ),
+                ),
+              ],
             ),
           ),
 
@@ -814,7 +828,7 @@ class _CardSelectionPageState extends State<CardSelectionPage>
                       final radius = constraints.maxWidth * 0.42;
                       
                       final x = (constraints.maxWidth / 2) + (radius * sin(radians)) - (cardWidth / 2);
-                      final y = (constraints.maxHeight * 0.8) - (radius * cos(radians)) - (cardHeight / 2);
+                      final y = (constraints.maxHeight * 0.9) - (radius * cos(radians)) - (cardHeight / 2);
 
                       final isHovered = _hoveredIndex == index;
                       final isSelected = _selectedIndices.contains(index);
@@ -1356,6 +1370,7 @@ class ResultPage extends StatefulWidget {
 class _ResultPageState extends State<ResultPage> {
   final TextEditingController _followUpController = TextEditingController();
   late List<Map<String, String>> _conversation;
+  bool _showFollowUpInput = false;
 
   @override
   void initState() {
@@ -1369,12 +1384,33 @@ class _ResultPageState extends State<ResultPage> {
       'role': 'assistant',
       'content': widget.reading,
     });
+    
+    // conversationHistory가 있으면 이미 추가 질문을 한 상태이므로 입력창 표시
+    if (widget.conversationHistory != null && widget.conversationHistory!.length > 2) {
+      _showFollowUpInput = true;
+    }
   }
 
   @override
   void dispose() {
     _followUpController.dispose();
     super.dispose();
+  }
+
+  void _openFollowUpInput() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => AdOnlyPage(
+          persona: widget.persona,
+        ),
+      ),
+    );
+    
+    if (mounted) {
+      setState(() {
+        _showFollowUpInput = true;
+      });
+    }
   }
 
   void _askFollowUpQuestion() {
@@ -1465,77 +1501,79 @@ class _ResultPageState extends State<ResultPage> {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            Card(
-              color: Colors.purple[50],
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '선택된 카드',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
+            if (!_showFollowUpInput) ...[
+              const SizedBox(height: 16),
+              Card(
+                color: Colors.purple[50],
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '선택된 카드',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    ...widget.selectedCards.asMap().entries.map((entry) {
-                      final index = entry.key;
-                      final selectedCard = entry.value;
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 30,
-                              height: 30,
-                              decoration: const BoxDecoration(
-                                color: Colors.purple,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Center(
-                                child: Text(
-                                  '${index + 1}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
+                      const SizedBox(height: 12),
+                      ...widget.selectedCards.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final selectedCard = entry.value;
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 30,
+                                height: 30,
+                                decoration: const BoxDecoration(
+                                  color: Colors.purple,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    '${index + 1}',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    selectedCard.card.koreanName,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15,
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      selectedCard.card.koreanName,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15,
+                                      ),
                                     ),
-                                  ),
-                                  Text(
-                                    '${selectedCard.isReversed ? '역방향' : '정방향'} - ${selectedCard.card.keywords}',
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      color: selectedCard.isReversed 
-                                          ? Colors.red[700]
-                                          : Colors.green[700],
+                                    Text(
+                                      '${selectedCard.isReversed ? '역방향' : '정방향'} - ${selectedCard.card.keywords}',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: selectedCard.isReversed 
+                                            ? Colors.red[700]
+                                            : Colors.green[700],
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                  ],
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ],
+                  ),
                 ),
               ),
-            ),
+            ],
             const SizedBox(height: 16),
             Card(
               child: Padding(
@@ -1547,55 +1585,43 @@ class _ResultPageState extends State<ResultPage> {
               ),
             ),
             const SizedBox(height: 24),
-            FilledButton.icon(
-              onPressed: null,
-              icon: const Icon(Icons.ads_click),
-              label: const Text('광고보고 추가질문하기'),
-              style: FilledButton.styleFrom(
-                backgroundColor: widget.persona.color,
-                minimumSize: const Size(double.infinity, 50),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Card(
-              color: widget.persona.color.withOpacity(0.05),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '추가 질문',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: widget.persona.color,
+            if (!_showFollowUpInput)
+              FilledButton.icon(
+                onPressed: _openFollowUpInput,
+                icon: const Icon(Icons.chat_bubble_outline),
+                label: const Text('광고보고 추가질문하기'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: widget.persona.color,
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+              )
+            else
+              Card(
+                color: widget.persona.color.withOpacity(0.05),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: TextField(
+                    controller: _followUpController,
+                    decoration: InputDecoration(
+                      hintText: '궁금한 점을 입력하세요...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: widget.persona.color),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: widget.persona.color, width: 2),
+                      ),
+                      suffixIcon: IconButton(
+                        onPressed: _askFollowUpQuestion,
+                        icon: Icon(Icons.send, color: widget.persona.color),
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: _followUpController,
-                      decoration: InputDecoration(
-                        hintText: '궁금한 점을 입력하세요...',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: widget.persona.color),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: widget.persona.color, width: 2),
-                        ),
-                        suffixIcon: IconButton(
-                          onPressed: _askFollowUpQuestion,
-                          icon: Icon(Icons.send, color: widget.persona.color),
-                        ),
-                      ),
-                      maxLines: 3,
-                      onSubmitted: (_) => _askFollowUpQuestion(),
-                    ),
-                  ],
+                    maxLines: 3,
+                    onSubmitted: (_) => _askFollowUpQuestion(),
+                  ),
                 ),
               ),
-            ),
             const SizedBox(height: 12),
             OutlinedButton.icon(
               onPressed: () {
@@ -1782,6 +1808,114 @@ class _FollowUpAdPageState extends State<FollowUpAdPage> {
                 if (_isLoading)
                   const CircularProgressIndicator(color: Colors.white70, strokeWidth: 3)
                 else if (_canSkip)
+                  TextButton(
+                    onPressed: _skipAd,
+                    child: const Text(
+                      'Skip',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class AdOnlyPage extends StatefulWidget {
+  final Persona persona;
+
+  const AdOnlyPage({
+    super.key,
+    required this.persona,
+  });
+
+  @override
+  State<AdOnlyPage> createState() => _AdOnlyPageState();
+}
+
+class _AdOnlyPageState extends State<AdOnlyPage> {
+  int _countdown = 3;
+  bool _canSkip = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _startCountdown();
+  }
+
+  void _startCountdown() {
+    Future.delayed(const Duration(seconds: 1), () {
+      if (mounted) {
+        setState(() {
+          _countdown--;
+        });
+        if (_countdown > 0) {
+          _startCountdown();
+        } else {
+          setState(() {
+            _canSkip = true;
+          });
+        }
+      }
+    });
+  }
+
+  void _skipAd() {
+    if (_canSkip) {
+      Navigator.of(context).pop();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: widget.persona.color,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.play_circle_outline,
+              size: 100,
+              color: Colors.white,
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              '광고 플레이스홀더',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Continue to ask follow-up questions',
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 32),
+            Column(
+              children: [
+                Text(
+                  _countdown > 0 ? '$_countdown' : 'Ready!',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 48,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                if (_canSkip)
                   TextButton(
                     onPressed: _skipAd,
                     child: const Text(
