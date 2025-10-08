@@ -50,9 +50,13 @@ class Persona {
   
   const Persona(this.id, this.nameKo, this.nameEn, this.color, this.description, this.greetings, this.imagePaths);
   
-  String getRandomImage() {
+  String getRandomImage({List<String> exclude = const []}) {
     final random = Random();
-    return imagePaths[random.nextInt(imagePaths.length)];
+    final available = imagePaths.where((path) => !exclude.contains(path)).toList();
+    if (available.isEmpty) {
+      return imagePaths[random.nextInt(imagePaths.length)];
+    }
+    return available[random.nextInt(available.length)];
   }
 }
 
@@ -227,8 +231,13 @@ class LanguageSelectPage extends StatelessWidget {
 
 class CharacterSelectPage extends StatefulWidget {
   final String language;
+  final List<String> usedImages;
 
-  const CharacterSelectPage({super.key, required this.language});
+  const CharacterSelectPage({
+    super.key, 
+    required this.language,
+    this.usedImages = const [],
+  });
 
   @override
   State<CharacterSelectPage> createState() => _CharacterSelectPageState();
@@ -241,7 +250,7 @@ class _CharacterSelectPageState extends State<CharacterSelectPage> {
   void initState() {
     super.initState();
     for (var persona in personas) {
-      _personaImages[persona.id] = persona.getRandomImage();
+      _personaImages[persona.id] = persona.getRandomImage(exclude: widget.usedImages);
     }
   }
 
@@ -257,13 +266,15 @@ class _CharacterSelectPageState extends State<CharacterSelectPage> {
             itemCount: personas.length,
             itemBuilder: (context, index) {
               final persona = personas[index];
+              final imagePath = _personaImages[persona.id]!;
               return Card(
                 color: persona.color.withOpacity(0.1),
                 margin: const EdgeInsets.symmetric(vertical: 8),
                 child: ListTile(
                   leading: CircleAvatar(
                     radius: 30,
-                    backgroundImage: AssetImage(_personaImages[persona.id]!),
+                    backgroundColor: Colors.transparent,
+                    backgroundImage: AssetImage(imagePath),
                   ),
                   title: Text(
                     persona.nameKo,
@@ -280,6 +291,7 @@ class _CharacterSelectPageState extends State<CharacterSelectPage> {
                         builder: (_) => FortuneCategoryPage(
                           language: widget.language,
                           persona: persona,
+                          usedImages: [...widget.usedImages, imagePath],
                         ),
                       ),
                     );
@@ -297,11 +309,13 @@ class _CharacterSelectPageState extends State<CharacterSelectPage> {
 class FortuneCategoryPage extends StatefulWidget {
   final String language;
   final Persona persona;
+  final List<String> usedImages;
 
   const FortuneCategoryPage({
     super.key,
     required this.language,
     required this.persona,
+    this.usedImages = const [],
   });
 
   @override
@@ -314,7 +328,7 @@ class _FortuneCategoryPageState extends State<FortuneCategoryPage> {
   @override
   void initState() {
     super.initState();
-    _personaImage = widget.persona.getRandomImage();
+    _personaImage = widget.persona.getRandomImage(exclude: widget.usedImages);
   }
 
   @override
@@ -343,6 +357,7 @@ class _FortuneCategoryPageState extends State<FortuneCategoryPage> {
               children: [
                 CircleAvatar(
                   radius: 40,
+                  backgroundColor: Colors.transparent,
                   backgroundImage: AssetImage(_personaImage),
                 ),
                 const SizedBox(height: 12),
@@ -395,6 +410,7 @@ class _FortuneCategoryPageState extends State<FortuneCategoryPage> {
                             language: widget.language,
                             persona: widget.persona,
                             category: category,
+                            usedImages: [...widget.usedImages, _personaImage],
                           ),
                         ),
                       );
@@ -464,12 +480,14 @@ class QuestionPage extends StatefulWidget {
   final String language;
   final Persona persona;
   final FortuneCategory category;
+  final List<String> usedImages;
 
   const QuestionPage({
     super.key,
     required this.language,
     required this.persona,
     required this.category,
+    this.usedImages = const [],
   });
 
   @override
@@ -483,7 +501,7 @@ class _QuestionPageState extends State<QuestionPage> {
   @override
   void initState() {
     super.initState();
-    _personaImage = widget.persona.getRandomImage();
+    _personaImage = widget.persona.getRandomImage(exclude: widget.usedImages);
   }
 
   @override
@@ -507,6 +525,7 @@ class _QuestionPageState extends State<QuestionPage> {
           persona: widget.persona,
           category: widget.category,
           question: _questionController.text.trim(),
+          usedImages: [...widget.usedImages, _personaImage],
         ),
       ),
     );
@@ -535,6 +554,7 @@ class _QuestionPageState extends State<QuestionPage> {
                   children: [
                     CircleAvatar(
                       radius: 50,
+                      backgroundColor: Colors.transparent,
                       backgroundImage: AssetImage(_personaImage),
                     ),
                     const SizedBox(height: 12),
@@ -613,6 +633,7 @@ class CardSelectionPage extends StatefulWidget {
   final Persona persona;
   final FortuneCategory category;
   final String question;
+  final List<String> usedImages;
 
   const CardSelectionPage({
     super.key,
@@ -620,6 +641,7 @@ class CardSelectionPage extends StatefulWidget {
     required this.persona,
     required this.category,
     required this.question,
+    this.usedImages = const [],
   });
 
   @override
@@ -644,7 +666,7 @@ class _CardSelectionPageState extends State<CardSelectionPage>
   void initState() {
     super.initState();
     _cardsToSelect = widget.category.cardCount;
-    _personaImage = widget.persona.getRandomImage();
+    _personaImage = widget.persona.getRandomImage(exclude: widget.usedImages);
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
@@ -727,6 +749,7 @@ class _CardSelectionPageState extends State<CardSelectionPage>
             category: widget.category,
             question: widget.question,
             selectedCards: selectedCards,
+            usedImages: [...widget.usedImages, _personaImage],
           ),
         ),
       );
@@ -795,6 +818,7 @@ class _CardSelectionPageState extends State<CardSelectionPage>
               children: [
                 CircleAvatar(
                   radius: 40,
+                  backgroundColor: Colors.transparent,
                   backgroundImage: AssetImage(_personaImage),
                 ),
                 const SizedBox(height: 12),
@@ -997,6 +1021,7 @@ class CardRevealPage extends StatefulWidget {
   final FortuneCategory category;
   final String question;
   final List<SelectedCard> selectedCards;
+  final List<String> usedImages;
 
   const CardRevealPage({
     super.key,
@@ -1005,6 +1030,7 @@ class CardRevealPage extends StatefulWidget {
     required this.category,
     required this.question,
     required this.selectedCards,
+    this.usedImages = const [],
   });
 
   @override
@@ -1058,6 +1084,7 @@ class _CardRevealPageState extends State<CardRevealPage>
           category: widget.category,
           question: widget.question,
           selectedCards: widget.selectedCards,
+          usedImages: widget.usedImages,
         ),
       ),
     );
@@ -1222,6 +1249,7 @@ class AdPlaceholderPage extends StatefulWidget {
   final FortuneCategory category;
   final String question;
   final List<SelectedCard> selectedCards;
+  final List<String> usedImages;
 
   const AdPlaceholderPage({
     super.key,
@@ -1230,6 +1258,7 @@ class AdPlaceholderPage extends StatefulWidget {
     required this.category,
     required this.question,
     required this.selectedCards,
+    this.usedImages = const [],
   });
 
   @override
@@ -1322,6 +1351,7 @@ class _AdPlaceholderPageState extends State<AdPlaceholderPage> {
             persona: widget.persona,
             question: widget.question,
             selectedCards: widget.selectedCards,
+            usedImages: widget.usedImages,
           ),
         ),
       );
@@ -1412,6 +1442,7 @@ class ResultPage extends StatefulWidget {
   final String question;
   final List<SelectedCard> selectedCards;
   final List<Map<String, String>>? conversationHistory;
+  final List<String> usedImages;
 
   const ResultPage({
     super.key,
@@ -1423,6 +1454,7 @@ class ResultPage extends StatefulWidget {
     required this.question,
     required this.selectedCards,
     this.conversationHistory,
+    this.usedImages = const [],
   });
 
   @override
@@ -1433,6 +1465,7 @@ class _ResultPageState extends State<ResultPage> {
   final TextEditingController _followUpController = TextEditingController();
   late List<Map<String, String>> _conversation;
   bool _showFollowUpInput = false;
+  late List<String> _resultImages;
 
   @override
   void initState() {
@@ -1447,6 +1480,23 @@ class _ResultPageState extends State<ResultPage> {
       'content': widget.reading,
     });
     
+    _resultImages = [];
+    final available = widget.persona.imagePaths.where((path) => !widget.usedImages.contains(path)).toList();
+    final random = Random();
+    
+    if (available.isNotEmpty) {
+      for (int i = 0; i < min(3, available.length); i++) {
+        final img = available[random.nextInt(available.length)];
+        if (!_resultImages.contains(img)) {
+          _resultImages.add(img);
+        }
+      }
+    }
+    
+    if (_resultImages.isEmpty && widget.persona.imagePaths.isNotEmpty) {
+      _resultImages.add(widget.persona.imagePaths[random.nextInt(widget.persona.imagePaths.length)]);
+    }
+    
     // conversationHistory가 있으면 이미 추가 질문을 한 상태이므로 입력창 표시
     if (widget.conversationHistory != null && widget.conversationHistory!.length > 2) {
       _showFollowUpInput = true;
@@ -1457,6 +1507,24 @@ class _ResultPageState extends State<ResultPage> {
   void dispose() {
     _followUpController.dispose();
     super.dispose();
+  }
+
+  String _getFirstPart() {
+    final lines = widget.reading.split('\n');
+    final third = (lines.length / 3).ceil();
+    return lines.take(third).join('\n');
+  }
+
+  String _getSecondPart() {
+    final lines = widget.reading.split('\n');
+    final third = (lines.length / 3).ceil();
+    return lines.skip(third).take(third).join('\n');
+  }
+
+  String _getThirdPart() {
+    final lines = widget.reading.split('\n');
+    final third = (lines.length / 3).ceil();
+    return lines.skip(third * 2).join('\n');
   }
 
   void _openFollowUpInput() async {
@@ -1488,6 +1556,7 @@ class _ResultPageState extends State<ResultPage> {
           question: followUpQuestion,
           selectedCards: widget.selectedCards,
           conversationHistory: List.from(_conversation),
+          usedImages: [...widget.usedImages, ..._resultImages],
         ),
       ),
     );
@@ -1637,22 +1706,121 @@ class _ResultPageState extends State<ResultPage> {
               ),
             ],
             const SizedBox(height: 16),
+            if (_resultImages.isNotEmpty)
+              Center(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Image.asset(
+                    _resultImages[0],
+                    width: 200,
+                    height: 200,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        width: 200,
+                        height: 200,
+                        color: widget.persona.color.withOpacity(0.1),
+                        child: Icon(Icons.image_not_supported, size: 50, color: widget.persona.color),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            const SizedBox(height: 16),
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(20),
-                child: MarkdownBody(
-                  data: widget.reading,
-                  styleSheet: MarkdownStyleSheet(
-                    p: theme.textTheme.bodyLarge?.copyWith(height: 1.6),
-                    strong: theme.textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      height: 1.6,
+                child: Column(
+                  children: [
+                    MarkdownBody(
+                      data: _getFirstPart(),
+                      styleSheet: MarkdownStyleSheet(
+                        p: theme.textTheme.bodyLarge?.copyWith(height: 1.6),
+                        strong: theme.textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          height: 1.6,
+                        ),
+                        em: theme.textTheme.bodyLarge?.copyWith(
+                          fontStyle: FontStyle.italic,
+                          height: 1.6,
+                        ),
+                      ),
                     ),
-                    em: theme.textTheme.bodyLarge?.copyWith(
-                      fontStyle: FontStyle.italic,
-                      height: 1.6,
+                    if (_resultImages.length > 1) ...[
+                      const SizedBox(height: 20),
+                      Center(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.asset(
+                            _resultImages[1],
+                            width: 150,
+                            height: 150,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                width: 150,
+                                height: 150,
+                                color: widget.persona.color.withOpacity(0.1),
+                                child: Icon(Icons.image_not_supported, size: 40, color: widget.persona.color),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+                    MarkdownBody(
+                      data: _getSecondPart(),
+                      styleSheet: MarkdownStyleSheet(
+                        p: theme.textTheme.bodyLarge?.copyWith(height: 1.6),
+                        strong: theme.textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          height: 1.6,
+                        ),
+                        em: theme.textTheme.bodyLarge?.copyWith(
+                          fontStyle: FontStyle.italic,
+                          height: 1.6,
+                        ),
+                      ),
                     ),
-                  ),
+                    if (_resultImages.length > 2) ...[
+                      const SizedBox(height: 20),
+                      Center(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.asset(
+                            _resultImages[2],
+                            width: 150,
+                            height: 150,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                width: 150,
+                                height: 150,
+                                color: widget.persona.color.withOpacity(0.1),
+                                child: Icon(Icons.image_not_supported, size: 40, color: widget.persona.color),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+                    MarkdownBody(
+                      data: _getThirdPart(),
+                      styleSheet: MarkdownStyleSheet(
+                        p: theme.textTheme.bodyLarge?.copyWith(height: 1.6),
+                        strong: theme.textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          height: 1.6,
+                        ),
+                        em: theme.textTheme.bodyLarge?.copyWith(
+                          fontStyle: FontStyle.italic,
+                          height: 1.6,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -1716,6 +1884,7 @@ class FollowUpAdPage extends StatefulWidget {
   final String question;
   final List<SelectedCard> selectedCards;
   final List<Map<String, String>> conversationHistory;
+  final List<String> usedImages;
 
   const FollowUpAdPage({
     super.key,
@@ -1725,6 +1894,7 @@ class FollowUpAdPage extends StatefulWidget {
     required this.question,
     required this.selectedCards,
     required this.conversationHistory,
+    this.usedImages = const [],
   });
 
   @override
@@ -1819,6 +1989,7 @@ class _FollowUpAdPageState extends State<FollowUpAdPage> {
             question: widget.question,
             selectedCards: widget.selectedCards,
             conversationHistory: widget.conversationHistory,
+            usedImages: widget.usedImages,
           ),
         ),
       );
