@@ -284,21 +284,22 @@ class _CharacterSelectPageState extends State<CharacterSelectPage> {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    Container(
-                      width: double.infinity,
-                      height: 250,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        image: DecorationImage(
-                          image: AssetImage(imagePath),
-                          fit: BoxFit.cover,
-                          onError: (exception, stackTrace) {
-                            print('Error loading image: $imagePath - $exception');
-                          },
-                        ),
-                        border: Border.all(
-                          color: persona.color.withOpacity(0.3),
-                          width: 2,
+                    AspectRatio(
+                      aspectRatio: 1,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          image: DecorationImage(
+                            image: AssetImage(imagePath),
+                            fit: BoxFit.cover,
+                            onError: (exception, stackTrace) {
+                              print('Error loading image: $imagePath - $exception');
+                            },
+                          ),
+                          border: Border.all(
+                            color: persona.color.withOpacity(0.3),
+                            width: 2,
+                          ),
                         ),
                       ),
                     ),
@@ -381,13 +382,25 @@ class _FortuneCategoryPageState extends State<FortuneCategoryPage> {
             ),
             child: Column(
               children: [
-                CircleAvatar(
-                  radius: 40,
-                  backgroundColor: widget.persona.color.withOpacity(0.3),
-                  backgroundImage: AssetImage(_personaImage),
-                  onBackgroundImageError: (exception, stackTrace) {
-                    print('Error loading image: $_personaImage - $exception');
-                  },
+                SizedBox(
+                  width: 200,
+                  height: 200,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      image: DecorationImage(
+                        image: AssetImage(_personaImage),
+                        fit: BoxFit.cover,
+                        onError: (exception, stackTrace) {
+                          print('Error loading image: $_personaImage - $exception');
+                        },
+                      ),
+                      border: Border.all(
+                        color: widget.persona.color.withOpacity(0.3),
+                        width: 2,
+                      ),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Text(
@@ -581,13 +594,25 @@ class _QuestionPageState extends State<QuestionPage> {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundColor: widget.persona.color.withOpacity(0.3),
-                      backgroundImage: AssetImage(_personaImage),
-                      onBackgroundImageError: (exception, stackTrace) {
-                        print('Error loading image: $_personaImage - $exception');
-                      },
+                    SizedBox(
+                      width: 200,
+                      height: 200,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          image: DecorationImage(
+                            image: AssetImage(_personaImage),
+                            fit: BoxFit.cover,
+                            onError: (exception, stackTrace) {
+                              print('Error loading image: $_personaImage - $exception');
+                            },
+                          ),
+                          border: Border.all(
+                            color: widget.persona.color.withOpacity(0.3),
+                            width: 2,
+                          ),
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 12),
                     Text(
@@ -848,13 +873,25 @@ class _CardSelectionPageState extends State<CardSelectionPage>
             ),
             child: Column(
               children: [
-                CircleAvatar(
-                  radius: 40,
-                  backgroundColor: widget.persona.color.withOpacity(0.3),
-                  backgroundImage: AssetImage(_personaImage),
-                  onBackgroundImageError: (exception, stackTrace) {
-                    print('Error loading image: $_personaImage - $exception');
-                  },
+                SizedBox(
+                  width: 200,
+                  height: 200,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      image: DecorationImage(
+                        image: AssetImage(_personaImage),
+                        fit: BoxFit.cover,
+                        onError: (exception, stackTrace) {
+                          print('Error loading image: $_personaImage - $exception');
+                        },
+                      ),
+                      border: Border.all(
+                        color: widget.persona.color.withOpacity(0.3),
+                        width: 2,
+                      ),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Text(
@@ -1747,13 +1784,13 @@ class _ResultPageState extends State<ResultPage> {
                   borderRadius: BorderRadius.circular(16),
                   child: Image.asset(
                     _resultImages[0],
-                    width: 200,
-                    height: 200,
+                    width: 300,
+                    height: 300,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
-                        width: 200,
-                        height: 200,
+                        width: 300,
+                        height: 300,
                         color: widget.persona.color.withOpacity(0.1),
                         child: Icon(Icons.image_not_supported, size: 50, color: widget.persona.color),
                       );
@@ -1788,13 +1825,13 @@ class _ResultPageState extends State<ResultPage> {
                           borderRadius: BorderRadius.circular(12),
                           child: Image.asset(
                             _resultImages[1],
-                            width: 150,
-                            height: 150,
+                            width: 300,
+                            height: 300,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
                               return Container(
-                                width: 150,
-                                height: 150,
+                                width: 300,
+                                height: 300,
                                 color: widget.persona.color.withOpacity(0.1),
                                 child: Icon(Icons.image_not_supported, size: 40, color: widget.persona.color),
                               );
@@ -1825,13 +1862,13 @@ class _ResultPageState extends State<ResultPage> {
                           borderRadius: BorderRadius.circular(12),
                           child: Image.asset(
                             _resultImages[2],
-                            width: 150,
-                            height: 150,
+                            width: 300,
+                            height: 300,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
                               return Container(
-                                width: 150,
-                                height: 150,
+                                width: 300,
+                                height: 300,
                                 color: widget.persona.color.withOpacity(0.1),
                                 child: Icon(Icons.image_not_supported, size: 40, color: widget.persona.color),
                               );
