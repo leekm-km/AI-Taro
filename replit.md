@@ -10,6 +10,7 @@ AI Taro Oppa (타로오빠) is a multi-language tarot card reading application b
 - **Ad Page UX Refinement**: Independent countdown and loading states with clear visual indicators (spinner during loading, skip button after countdown completion)
 - **Deployment Optimization (Oct 8)**: Configured backend to use absolute paths with REPL_HOME for deployment compatibility; fixed autoscale port configuration by adding --port 5000 to uvicorn run command to match .replit localPort setting
 - **Markdown Rendering & UI Enhancement (Oct 8)**: Added flutter_markdown package to render GPT responses with text formatting (bold, italic); expanded fortune categories to 8 items (added Relationship/인간관계운); redesigned category selection page with 4x2 grid layout for improved organization and visual clarity
+- **Character Image System (Oct 8)**: Integrated 33 character images across 5 characters (루시앙 9개, 린화 8개, 이졸데 4개, 청운 5개, 팀블 7개) with random selection and duplicate prevention system. Images display on CharacterSelectPage, FortuneCategoryPage, QuestionPage, and CardSelectionPage with transparent background CircleAvatars. ResultPage shows up to 3 unique images: one above GPT response (200x200) and two interspersed within the reading text (150x150). Implemented usedImages tracking across entire navigation flow to prevent image repetition within a single session.
 
 ### User Preferences
 - **Communication Style**: I prefer simple language and detailed explanations.
