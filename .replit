@@ -1,4 +1,4 @@
-modules = ["python-3.12"]
+modules = ["python-3.12", "flutter"]
 [agent]
 expertMode = true
 
@@ -11,7 +11,7 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 45103
+localPort = 44127
 externalPort = 3000
 
 [workflows]

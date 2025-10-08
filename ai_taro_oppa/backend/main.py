@@ -126,7 +126,8 @@ async def get_tarot_reading(request: TarotRequest):
         "marriage": "결혼과 파트너십, 장기적 관계",
         "career": "직업운과 커리어, 업무 상황",
         "education": "학업운과 공부, 학습과 성장",
-        "health": "건강운과 신체적/정신적 상태"
+        "health": "건강운과 신체적/정신적 상태",
+        "relationship": "인간관계운과 대인관계, 사람들과의 상호작용과 소통"
     }
     focus = category_focus.get(request.category, "전반적인 운세")
     
@@ -241,7 +242,8 @@ async def get_followup_reading(request: FollowUpRequest):
         "marriage": "결혼과 파트너십, 장기적 관계",
         "career": "직업운과 커리어, 업무 상황",
         "education": "학업운과 공부, 학습과 성장",
-        "health": "건강운과 신체적/정신적 상태"
+        "health": "건강운과 신체적/정신적 상태",
+        "relationship": "인간관계운과 대인관계, 사람들과의 상호작용과 소통"
     }
     focus = category_focus.get(request.category, "전반적인 운세")
     

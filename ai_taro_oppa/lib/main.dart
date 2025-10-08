@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 void main() {
   runApp(const MyApp());
@@ -100,7 +101,8 @@ const List<FortuneCategory> fortuneCategories = [
   FortuneCategory('marriage', {'ko': '결혼운', 'en': 'Marriage', 'zh': '婚姻运', 'th': 'การแต่งงาน'}, Icons.favorite_border, 5),
   FortuneCategory('career', {'ko': '직업운', 'en': 'Career', 'zh': '事业运', 'th': 'อาชีพ'}, Icons.work, 4),
   FortuneCategory('education', {'ko': '학업운', 'en': 'Education', 'zh': '学业运', 'th': 'การศึกษา'}, Icons.school, 3),
-  FortuneCategory('health', {'ko': '건강운', 'en': 'Health', 'zh': '健康运', 'th': 'สุขภาพ'}, Icons.favorite_border, 4),
+  FortuneCategory('health', {'ko': '건강운', 'en': 'Health', 'zh': '健康运', 'th': 'สุขภาพ'}, Icons.health_and_safety, 4),
+  FortuneCategory('relationship', {'ko': '인간관계운', 'en': 'Relationships', 'zh': '人际关系运', 'th': 'ความสัมพันธ์'}, Icons.people, 4),
 ];
 
 class TarotCard {
@@ -331,81 +333,86 @@ class FortuneCategoryPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
-              children: fortuneCategories.map((category) {
-                return Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: InkWell(
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => QuestionPage(
-                              language: language,
-                              persona: persona,
-                              category: category,
-                            ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  childAspectRatio: 0.9,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                ),
+                itemCount: fortuneCategories.length,
+                itemBuilder: (context, index) {
+                  final category = fortuneCategories[index];
+                  return InkWell(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => QuestionPage(
+                            language: language,
+                            persona: persona,
+                            category: category,
                           ),
-                        );
-                      },
-                      borderRadius: BorderRadius.circular(16),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              persona.color.withOpacity(0.15),
-                              persona.color.withOpacity(0.08),
-                            ],
-                          ),
-                          border: Border.all(
-                            color: persona.color.withOpacity(0.3),
-                            width: 2,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: persona.color.withOpacity(0.1),
-                              blurRadius: 6,
-                              offset: const Offset(0, 3),
-                            ),
+                        ),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            persona.color.withOpacity(0.15),
+                            persona.color.withOpacity(0.08),
                           ],
                         ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              category.icon,
-                              size: 24,
+                        border: Border.all(
+                          color: persona.color.withOpacity(0.3),
+                          width: 2,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: persona.color.withOpacity(0.1),
+                            blurRadius: 6,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            category.icon,
+                            size: 24,
+                            color: persona.color,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            category.getName(language),
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
                               color: persona.color,
+                              height: 1.1,
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              category.getName(language),
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                                color: persona.color,
-                                height: 1.1,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                );
-              }).toList(),
+                  );
+                },
+              ),
             ),
           ),
-          const Spacer(),
+          const SizedBox(height: 16),
         ],
       ),
     );
@@ -1598,9 +1605,19 @@ class _ResultPageState extends State<ResultPage> {
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(20),
-                child: Text(
-                  widget.reading,
-                  style: theme.textTheme.bodyLarge?.copyWith(height: 1.6),
+                child: MarkdownBody(
+                  data: widget.reading,
+                  styleSheet: MarkdownStyleSheet(
+                    p: theme.textTheme.bodyLarge?.copyWith(height: 1.6),
+                    strong: theme.textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      height: 1.6,
+                    ),
+                    em: theme.textTheme.bodyLarge?.copyWith(
+                      fontStyle: FontStyle.italic,
+                      height: 1.6,
+                    ),
+                  ),
                 ),
               ),
             ),

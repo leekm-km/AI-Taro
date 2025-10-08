@@ -5,10 +5,11 @@ AI Taro Oppa (타로오빠) is a multi-language tarot card reading application b
 
 ### Recent Changes (October 2025)
 - **Card Layout Optimization**: Adjusted card selection fan layout with flatter angle (maxAngle: 45°) and lower vertical position (0.8 of viewport height) for better visual balance and accessibility
-- **Dynamic Card Count**: Implemented fortune category-specific card counts (3-5 cards) - General/Marriage use 5 cards, Wealth/Career/Health use 4 cards, Love/Education use 3 cards
+- **Dynamic Card Count**: Implemented fortune category-specific card counts (3-5 cards) - General/Marriage use 5 cards, Wealth/Career/Health/Relationship use 4 cards, Love/Education use 3 cards
 - **Enhanced GPT Responses**: Upgraded prompts to include extended greetings (200-300 chars) with character introduction and welcome, detailed card imagery descriptions using visual_elements data, reversed card explanations when applicable, and increased minimum response length to 1200+ characters
 - **Ad Page UX Refinement**: Independent countdown and loading states with clear visual indicators (spinner during loading, skip button after countdown completion)
 - **Deployment Optimization (Oct 8)**: Configured backend to use absolute paths with REPL_HOME for deployment compatibility; fixed autoscale port configuration by adding --port 5000 to uvicorn run command to match .replit localPort setting
+- **Markdown Rendering & UI Enhancement (Oct 8)**: Added flutter_markdown package to render GPT responses with text formatting (bold, italic); expanded fortune categories to 8 items (added Relationship/인간관계운); redesigned category selection page with 4x2 grid layout for improved organization and visual clarity
 
 ### User Preferences
 - **Communication Style**: I prefer simple language and detailed explanations.
@@ -23,10 +24,10 @@ The application uses a unified server design where a single FastAPI server on po
 **Key Features:**
 - **5 International Characters**: Lucien Voss, Isolde Hartmann, Cheongun Seonin, Linhua, and Thimble Oakroot, each with distinct personalities and speaking styles.
 - **Multi-language Support**: Korean, English, Chinese, and Thai.
-- **7 Fortune Categories**: General, Wealth, Love, Marriage, Career, Education, and Health.
-- **User Flow**: Includes language selection, character selection, fortune category selection, question input, 3-card selection from 16 displayed cards, a 3D animated card reveal, an advertisement gate, AI-generated tarot reading, and interactive follow-up questions with ad integration.
+- **8 Fortune Categories**: General, Wealth, Love, Marriage, Career, Education, Health, and Relationships.
+- **User Flow**: Includes language selection, character selection, fortune category selection, question input, 3-5 card selection from 16 displayed cards, a 3D animated card reveal, an advertisement gate, AI-generated tarot reading with markdown formatting, and interactive follow-up questions with ad integration.
 - **UI/UX Decisions**:
-    - **Fortune Category Selection Page**: Compact, responsive single-row layout with `Expanded` widgets for perfect fit on various screen sizes, featuring gradient backgrounds, soft borders, and subtle shadows.
+    - **Fortune Category Selection Page**: 4x2 grid layout using `GridView.builder` for 8 categories, featuring gradient backgrounds, soft borders, and subtle shadows with responsive spacing.
     - **Card Selection Page**: Fan-shaped layout for 16 cards, with hover and selection effects (lift, color change, thicker border, enhanced shadow) animated using `MouseRegion` and `AnimatedContainer`.
     - **Card Reveal Animation**: Sequential 3D flip animation (`Transform.rotateY`) for cards, displaying card name, orientation badge, keywords, and detailed meaning. Counter-rotation logic keeps text upright during the flip.
     - **Optimized Loading**: GPT API calls are made during ad display to pre-load results, enabling instant navigation upon ad skip.
@@ -34,8 +35,8 @@ The application uses a unified server design where a single FastAPI server on po
     - **Interactive Follow-up System**: Features a "추가 질문하기" (Ask Additional Questions) button that transitions to "광고보고 추가질문하기" (Watch Ad to Ask Additional Questions), with a chat input field and full conversation history maintained for context-aware AI responses.
 
 **Technical Implementations:**
-- **Frontend (Flutter)**: Utilizes `TarotCard`, `SelectedCard`, `FortuneCategory` models, and dedicated pages for each step of the user flow (`FortuneCategoryPage`, `QuestionPage`, `CardSelectionPage`, `CardRevealPage`, `AdPlaceholderPage`, `ResultPage`). JSON assets are loaded for tarot card data, and random shuffling with orientation assignment is implemented.
-- **Backend (FastAPI)**: Employs `SelectedCardData` and `TarotRequest` Pydantic models for robust data validation. System prompts are enhanced for character tone enforcement, explicit provision of card meanings to GPT, and injection of fortune category context. A `/api/tarot/followup` endpoint is implemented for conversational continuity.
+- **Frontend (Flutter)**: Utilizes `TarotCard`, `SelectedCard`, `FortuneCategory` models, and dedicated pages for each step of the user flow (`FortuneCategoryPage`, `QuestionPage`, `CardSelectionPage`, `CardRevealPage`, `AdPlaceholderPage`, `ResultPage`). JSON assets are loaded for tarot card data, and random shuffling with orientation assignment is implemented. Uses `flutter_markdown` package to render GPT responses with text formatting (bold, italic) via `MarkdownBody` widget.
+- **Backend (FastAPI)**: Employs `SelectedCardData` and `TarotRequest` Pydantic models for robust data validation. System prompts are enhanced for character tone enforcement, explicit provision of card meanings to GPT, and injection of fortune category context. A `/api/tarot/followup` endpoint is implemented for conversational continuity. Category-specific focus includes all 8 fortune categories (general, wealth, love, marriage, career, education, health, relationship).
 - **Deployment**: Configured for autoscale deployment with `flutter build web --release` and `uvicorn ai_taro_oppa.backend.main:app --host 0.0.0.0 --port 5000`.
 
 ### External Dependencies
