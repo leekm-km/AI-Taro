@@ -37,4 +37,4 @@ outputType = "webview"
 [deployment]
 deploymentTarget = "autoscale"
 run = ["uvicorn", "ai_taro_oppa.backend.main:app", "--host", "0.0.0.0", "--port", "5000"]
-build = ["sh", "-c", "cd \"$REPL_HOME/ai_taro_oppa\" && flutter build web --release"]
+build = ["sh", "-c", "cd \"$REPL_HOME/ai_taro_oppa\" && flutter clean && flutter pub get && flutter build web --release"]
