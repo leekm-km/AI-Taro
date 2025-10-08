@@ -294,7 +294,14 @@ async def get_followup_reading(request: FollowUpRequest):
         raise HTTPException(status_code=500, detail=f"OpenAI API error: {str(e)}")
 
 # Flutter 웹 정적 파일 서빙 설정
-web_build_path = os.path.join(os.path.dirname(__file__), "..", "build", "web")
+# 배포 환경을 고려한 절대 경로 설정
+repl_home = os.getenv("REPL_HOME")
+if repl_home:
+    # Replit 환경
+    web_build_path = os.path.join(repl_home, "ai_taro_oppa", "build", "web")
+else:
+    # 로컬 개발 환경
+    web_build_path = os.path.join(os.path.dirname(__file__), "..", "build", "web")
 
 # 정적 파일 제공 (assets, js 등)
 if os.path.exists(web_build_path):

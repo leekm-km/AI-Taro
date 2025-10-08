@@ -8,6 +8,7 @@ AI Taro Oppa (타로오빠) is a multi-language tarot card reading application b
 - **Dynamic Card Count**: Implemented fortune category-specific card counts (3-5 cards) - General/Marriage use 5 cards, Wealth/Career/Health use 4 cards, Love/Education use 3 cards
 - **Enhanced GPT Responses**: Upgraded prompts to include extended greetings (200-300 chars) with character introduction and welcome, detailed card imagery descriptions using visual_elements data, reversed card explanations when applicable, and increased minimum response length to 1200+ characters
 - **Ad Page UX Refinement**: Independent countdown and loading states with clear visual indicators (spinner during loading, skip button after countdown completion)
+- **Deployment Optimization (Oct 8)**: Configured backend to use absolute paths with REPL_HOME for deployment compatibility; removed hardcoded port from autoscale config to allow automatic port assignment by Replit infrastructure
 
 ### User Preferences
 - **Communication Style**: I prefer simple language and detailed explanations.
