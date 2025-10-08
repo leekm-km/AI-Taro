@@ -4,7 +4,7 @@
 AI Taro Oppa (타로오빠) is a multi-language tarot card reading application built with Flutter Web and a FastAPI backend. The app provides personalized tarot readings through 5 unique international characters powered by OpenAI GPT-4o-mini. The project's vision is to offer an engaging and personalized digital tarot experience with a focus on diverse character interactions and multi-language support.
 
 ### Recent Changes (October 2025)
-- **Card Layout Optimization**: Adjusted card selection fan layout with flatter angle (maxAngle: 45°) and lower vertical position (0.8 of viewport height) for better visual balance and accessibility
+- **Card Layout Optimization**: Adjusted card selection fan layout with flatter angle (maxAngle: 45°) and responsive positioning (Oct 8: changed from bottom-anchored to top-anchored positioning `y = 80 + radius * (1 - cos(radians))` for better mobile compatibility across different screen aspect ratios)
 - **Dynamic Card Count**: Implemented fortune category-specific card counts (3-5 cards) - General/Marriage use 5 cards, Wealth/Career/Health/Relationship use 4 cards, Love/Education use 3 cards
 - **Enhanced GPT Responses**: Upgraded prompts to include extended greetings (200-300 chars) with character introduction and welcome, detailed card imagery descriptions using visual_elements data, reversed card explanations when applicable, and increased minimum response length to 1200+ characters
 - **Ad Page UX Refinement**: Independent countdown and loading states with clear visual indicators (spinner during loading, skip button after countdown completion)
