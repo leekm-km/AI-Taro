@@ -258,52 +258,75 @@ class _CharacterSelectPageState extends State<CharacterSelectPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('캐릭터를 선택하세요')),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: personas.length,
-            itemBuilder: (context, index) {
-              final persona = personas[index];
-              final imagePath = _personaImages[persona.id]!;
-              return Card(
-                color: persona.color.withOpacity(0.1),
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                child: ListTile(
-                  leading: CircleAvatar(
-                    radius: 30,
-                    backgroundColor: persona.color.withOpacity(0.3),
-                    backgroundImage: AssetImage(imagePath),
-                    onBackgroundImageError: (exception, stackTrace) {
-                      print('Error loading image: $imagePath - $exception');
-                    },
-                  ),
-                  title: Text(
-                    persona.nameKo,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: persona.color,
+      body: ListView.builder(
+        padding: const EdgeInsets.all(20),
+        itemCount: personas.length,
+        itemBuilder: (context, index) {
+          final persona = personas[index];
+          final imagePath = _personaImages[persona.id]!;
+          return Card(
+            color: persona.color.withOpacity(0.1),
+            margin: const EdgeInsets.only(bottom: 20),
+            child: InkWell(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => FortuneCategoryPage(
+                      language: widget.language,
+                      persona: persona,
+                      usedImages: [...widget.usedImages, imagePath],
                     ),
                   ),
-                  subtitle: Text(persona.description),
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => FortuneCategoryPage(
-                          language: widget.language,
-                          persona: persona,
-                          usedImages: [...widget.usedImages, imagePath],
+                );
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      height: 250,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        image: DecorationImage(
+                          image: AssetImage(imagePath),
+                          fit: BoxFit.cover,
+                          onError: (exception, stackTrace) {
+                            print('Error loading image: $imagePath - $exception');
+                          },
+                        ),
+                        border: Border.all(
+                          color: persona.color.withOpacity(0.3),
+                          width: 2,
                         ),
                       ),
-                    );
-                  },
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      persona.nameKo,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: persona.color,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      persona.description,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
                 ),
-              );
-            },
-          ),
-        ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
