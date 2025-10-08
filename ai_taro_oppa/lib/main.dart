@@ -608,6 +608,26 @@ class _CardSelectionPageState extends State<CardSelectionPage>
     super.dispose();
   }
 
+  String _getSelectionGuideMessage() {
+    final categoryName = widget.category.getName(widget.language);
+    final count = _cardsToSelect;
+    
+    switch (widget.persona.id) {
+      case 'lucien':
+        return '별들이 $categoryName을 선택했소. $count장을 고르시오.';
+      case 'isolde':
+        return '$categoryName을 선택하셨군요... $count장의 카드를 골라주세요.';
+      case 'cheongun':
+        return '$categoryName을 선택하셨소. 마음 가는 대로 $count장을 고르시게.';
+      case 'linhua':
+        return '오~ $categoryName을 고르셨네요! 자, $count장을 골라볼까요?';
+      case 'thimble':
+        return '$categoryName을 선택하셨네요! 편안하게 $count장을 골라보세요.';
+      default:
+        return '$categoryName을 고르셨군요! 그럼 $count장을 고르세요!';
+    }
+  }
+
   Future<void> _loadTarotCards() async {
     try {
       final jsonString = await rootBundle.loadString('assets/tarot_cards.json');
@@ -774,7 +794,7 @@ class _CardSelectionPageState extends State<CardSelectionPage>
             child: Column(
               children: [
                 Text(
-                  '${widget.category.getName(widget.language)}을 고르셨군요! 그럼 $_cardsToSelect장을 고르세요!',
+                  _getSelectionGuideMessage(),
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
@@ -828,7 +848,7 @@ class _CardSelectionPageState extends State<CardSelectionPage>
                       final radius = constraints.maxWidth * 0.42;
                       
                       final x = (constraints.maxWidth / 2) + (radius * sin(radians)) - (cardWidth / 2);
-                      final y = constraints.maxHeight - (radius * cos(radians)) - (cardHeight / 2) - 20;
+                      final y = constraints.maxHeight - (radius * cos(radians)) - (cardHeight / 2) - 40;
 
                       final isHovered = _hoveredIndex == index;
                       final isSelected = _selectedIndices.contains(index);
