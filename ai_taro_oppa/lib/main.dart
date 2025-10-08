@@ -795,7 +795,7 @@ class _CardSelectionPageState extends State<CardSelectionPage>
             ),
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
 
           Expanded(
             child: Center(
@@ -828,7 +828,7 @@ class _CardSelectionPageState extends State<CardSelectionPage>
                       final radius = constraints.maxWidth * 0.42;
                       
                       final x = (constraints.maxWidth / 2) + (radius * sin(radians)) - (cardWidth / 2);
-                      final y = (constraints.maxHeight * 0.9) - (radius * cos(radians)) - (cardHeight / 2);
+                      final y = constraints.maxHeight - (radius * cos(radians)) - (cardHeight / 2) - 20;
 
                       final isHovered = _hoveredIndex == index;
                       final isSelected = _selectedIndices.contains(index);
