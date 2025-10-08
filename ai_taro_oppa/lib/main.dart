@@ -86,20 +86,21 @@ class FortuneCategory {
   final String id;
   final Map<String, String> names;
   final IconData icon;
+  final int cardCount;
   
-  const FortuneCategory(this.id, this.names, this.icon);
+  const FortuneCategory(this.id, this.names, this.icon, this.cardCount);
   
   String getName(String lang) => names[lang] ?? names['ko']!;
 }
 
 const List<FortuneCategory> fortuneCategories = [
-  FortuneCategory('general', {'ko': '종합운', 'en': 'General Fortune', 'zh': '综合运', 'th': 'โชคชะตาทั่วไป'}, Icons.stars),
-  FortuneCategory('wealth', {'ko': '재물운', 'en': 'Wealth', 'zh': '财运', 'th': 'ทรัพย์สมบัติ'}, Icons.attach_money),
-  FortuneCategory('love', {'ko': '연애운', 'en': 'Love', 'zh': '恋爱运', 'th': 'ความรัก'}, Icons.favorite),
-  FortuneCategory('marriage', {'ko': '결혼운', 'en': 'Marriage', 'zh': '婚姻运', 'th': 'การแต่งงาน'}, Icons.favorite_border),
-  FortuneCategory('career', {'ko': '직업운', 'en': 'Career', 'zh': '事业运', 'th': 'อาชีพ'}, Icons.work),
-  FortuneCategory('education', {'ko': '학업운', 'en': 'Education', 'zh': '学业运', 'th': 'การศึกษา'}, Icons.school),
-  FortuneCategory('health', {'ko': '건강운', 'en': 'Health', 'zh': '健康运', 'th': 'สุขภาพ'}, Icons.favorite_border),
+  FortuneCategory('general', {'ko': '종합운', 'en': 'General Fortune', 'zh': '综合运', 'th': 'โชคชะตาทั่วไป'}, Icons.stars, 5),
+  FortuneCategory('wealth', {'ko': '재물운', 'en': 'Wealth', 'zh': '财运', 'th': 'ทรัพย์สมบัติ'}, Icons.attach_money, 4),
+  FortuneCategory('love', {'ko': '연애운', 'en': 'Love', 'zh': '恋爱运', 'th': 'ความรัก'}, Icons.favorite, 3),
+  FortuneCategory('marriage', {'ko': '결혼운', 'en': 'Marriage', 'zh': '婚姻运', 'th': 'การแต่งงาน'}, Icons.favorite_border, 5),
+  FortuneCategory('career', {'ko': '직업운', 'en': 'Career', 'zh': '事业运', 'th': 'อาชีพ'}, Icons.work, 4),
+  FortuneCategory('education', {'ko': '학업운', 'en': 'Education', 'zh': '学业运', 'th': 'การศึกษา'}, Icons.school, 3),
+  FortuneCategory('health', {'ko': '건강운', 'en': 'Health', 'zh': '健康运', 'th': 'สุขภาพ'}, Icons.favorite_border, 4),
 ];
 
 class TarotCard {
@@ -160,6 +161,7 @@ class SelectedCard {
       'orientation': isReversed ? 'reversed' : 'upright',
       'meaning': isReversed ? card.reversedMeaning : card.uprightMeaning,
       'keywords': card.keywords,
+      'visual_elements': card.visualElements,
     };
   }
 }
@@ -580,7 +582,7 @@ class _CardSelectionPageState extends State<CardSelectionPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   final Set<int> _selectedIndices = {};
-  final int _cardsToSelect = 3;
+  late final int _cardsToSelect;
   int? _hoveredIndex;
   
   List<TarotCard> _allCards = [];
@@ -592,6 +594,7 @@ class _CardSelectionPageState extends State<CardSelectionPage>
   @override
   void initState() {
     super.initState();
+    _cardsToSelect = widget.category.cardCount;
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
@@ -787,7 +790,7 @@ class _CardSelectionPageState extends State<CardSelectionPage>
                   final cardWidth = 80.0;
                   final cardHeight = 120.0;
                   final totalCards = _displayedCards.length;
-                  final maxAngle = 70.0;
+                  final maxAngle = 45.0;
                   final angleStep = (maxAngle * 2) / (totalCards - 1);
 
                   return Stack(
@@ -811,7 +814,7 @@ class _CardSelectionPageState extends State<CardSelectionPage>
                       final radius = constraints.maxWidth * 0.42;
                       
                       final x = (constraints.maxWidth / 2) + (radius * sin(radians)) - (cardWidth / 2);
-                      final y = (constraints.maxHeight * 0.75) - (radius * cos(radians)) - (cardHeight / 2);
+                      final y = (constraints.maxHeight * 0.8) - (radius * cos(radians)) - (cardHeight / 2);
 
                       final isHovered = _hoveredIndex == index;
                       final isSelected = _selectedIndices.contains(index);

@@ -65,6 +65,7 @@ class SelectedCardData(BaseModel):
     orientation: str
     meaning: str
     keywords: str
+    visual_elements: str
 
 class TarotRequest(BaseModel):
     character: str
@@ -102,12 +103,16 @@ async def get_tarot_reading(request: TarotRequest):
     
     # 선택된 카드 정보 상세 구성
     cards_detail = ""
+    has_reversed = False
     if request.selected_cards:
         cards_info = []
         for i, card in enumerate(request.selected_cards, 1):
             orientation_text = "역방향" if card.orientation == "reversed" else "정방향"
+            if card.orientation == "reversed":
+                has_reversed = True
             cards_info.append(
                 f"**카드 {i}**: {card.korean_name} ({card.name}) - {orientation_text}\n"
+                f"  그림: {card.visual_elements}\n"
                 f"  키워드: {card.keywords}\n"
                 f"  의미: {card.meaning}"
             )
@@ -125,6 +130,11 @@ async def get_tarot_reading(request: TarotRequest):
     }
     focus = category_focus.get(request.category, "전반적인 운세")
     
+    # 역방향 카드 안내 추가
+    reversed_guide = ""
+    if has_reversed:
+        reversed_guide = "\n\n**중요**: 역방향 카드가 포함되어 있습니다. 역방향 카드는 정방향과 다른 의미를 지니므로, 처음 언급할 때 이 점을 자연스럽게 설명해주세요."
+    
     # 시스템 프롬프트 강화 - 상세하고 긴 답변 요구
     system_prompt = f"""당신은 타로 리더 {persona['name_ko']} ({persona['name_en']})입니다.
 
@@ -141,38 +151,34 @@ async def get_tarot_reading(request: TarotRequest):
 
 2. **언어**: {request.language} 언어로만 답변하세요.
 
-3. **카드 해석**: 아래 3장의 타로 카드를 순서대로 해석합니다.
-{cards_detail}
+3. **카드 해석**: 아래 카드들을 순서대로 해석합니다.
+{cards_detail}{reversed_guide}
 
 4. **초점**: {focus}에 집중하여 해석하세요.
 
 5. **답변 구조 (자연스러운 대화 흐름으로)**:
    
-   먼저 캐릭터 특유의 인사말로 시작하세요. (2-3문장)
-   질문자에 대한 첫 인상이나 느낌을 자연스럽게 언급하세요.
+   **인사말 (200-300자)**:
+   - 자기소개를 포함한 따뜻한 인사말로 시작하세요
+   - 만나서 반갑다는 인사와 함께 질문자를 환영하세요
+   - 어떤 카드들을 뽑았는지 간단히 언급하세요
+   - 사용자의 질문에 대해 공감하고 답변할 준비가 되었음을 표현하세요
    
-   그 다음, 첫 번째 카드를 자연스럽게 소개하고 해석하세요. (200-300자 이상)
-   카드 이름과 방향을 언급하되, 대화하듯 자연스럽게 풀어내세요.
-   이 카드가 상징하는 의미를 상세히 설명하고,
-   {request.category} 관점에서 이 카드가 무엇을 말하는지 구체적으로 이야기하세요.
+   **각 카드 해석 (각 200-300자 이상)**:
+   - 카드 이름과 방향(정방향/역방향)을 자연스럽게 언급하세요
+   - **카드 그림 묘사**: 카드에 그려진 이미지를 구체적으로 설명하세요 
+     (예: "완드 두 개가 교차하고 있죠?", "컵들이 쏟아지는 모습이 보입니다")
+   - 카드의 상징과 의미를 상세히 설명하세요
+   - {request.category} 관점에서 구체적인 해석을 제공하세요
+   - 이전 카드들과의 연관성을 자연스럽게 연결하세요
    
-   이어서 두 번째 카드로 자연스럽게 넘어가세요. (200-300자 이상)
-   카드 이름과 방향을 언급하되, 이야기의 흐름처럼 연결하세요.
-   첫 번째 카드와의 연관성을 자연스럽게 언급하고,
-   {request.category} 관점에서 이 카드의 의미를 깊이 있게 풀어내세요.
-   
-   세 번째 카드도 마찬가지로 자연스럽게 이어가세요. (200-300자 이상)
-   카드 이름과 방향을 언급하되, 앞의 두 카드와 자연스럽게 연결하세요.
-   전체적인 흐름 속에서 이 카드가 어떤 의미를 더하는지 설명하고,
-   {request.category} 관점에서 구체적인 조언을 제공하세요.
-   
-   마지막으로 종합적인 해석과 조언으로 마무리하세요. (300-400자 이상)
-   세 장의 카드가 함께 말하는 전체적인 메시지를 하나의 이야기로 엮으세요.
-   {request.category}에 대한 종합적인 전망과 현재 상황에 대한 깊이 있는 통찰을 제공하고,
-   앞으로 나아갈 방향에 대한 구체적 조언을 담아 캐릭터 특유의 방식으로 마무리하세요.
+   **종합 해석 (300-400자 이상)**:
+   - 모든 카드가 함께 전하는 전체적인 메시지를 하나의 이야기로 엮으세요
+   - {request.category}에 대한 종합적인 전망과 깊이 있는 통찰을 제공하세요
+   - 구체적이고 실천 가능한 조언으로 마무리하세요
 
 6. **답변 길이**: 
-   - 총 1000자 이상의 상세한 답변을 작성하세요
+   - 총 1200자 이상의 상세한 답변을 작성하세요
    - 각 카드마다 충분한 깊이와 디테일을 제공하세요
    - 짧고 간략한 답변은 절대 금지입니다
    - 풍부한 비유와 구체적인 예시를 활용하세요
@@ -185,12 +191,12 @@ async def get_tarot_reading(request: TarotRequest):
 
 **중요**: 
 - 답변은 반드시 {persona['name_ko']} 캐릭터의 독특한 말투와 성격이 명확히 드러나야 합니다
-- 각 카드를 깊이 있게 분석하고, 종합 해석에서 전체적인 그림을 그려주세요
+- 각 카드의 그림을 언급하고, 깊이 있게 분석하세요
 - 질문자가 충분히 만족할 만큼 상세하고 길게 작성하세요"""
 
     user_prompt = f"""사용자 질문: {request.question or '특별한 질문 없음'}
 
-위 3장의 타로 카드를 바탕으로 {request.category}에 대한 리딩을 해주세요.
+위 {len(request.selected_cards)}장의 타로 카드를 바탕으로 {request.category}에 대한 리딩을 해주세요.
 반드시 {persona['name_ko']} 캐릭터의 독특한 말투를 유지하면서 답변해주세요."""
 
     try:
