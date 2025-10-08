@@ -787,7 +787,7 @@ class _CardSelectionPageState extends State<CardSelectionPage>
                   final cardWidth = 80.0;
                   final cardHeight = 120.0;
                   final totalCards = _displayedCards.length;
-                  final maxAngle = 50.0;
+                  final maxAngle = 70.0;
                   final angleStep = (maxAngle * 2) / (totalCards - 1);
 
                   return Stack(
@@ -808,7 +808,7 @@ class _CardSelectionPageState extends State<CardSelectionPage>
 
                       final angle = -maxAngle + (index * angleStep);
                       final radians = angle * (3.14159 / 180);
-                      final radius = constraints.maxWidth * 0.35;
+                      final radius = constraints.maxWidth * 0.42;
                       
                       final x = (constraints.maxWidth / 2) + (radius * sin(radians)) - (cardWidth / 2);
                       final y = (constraints.maxHeight * 0.75) - (radius * cos(radians)) - (cardHeight / 2);
@@ -1160,6 +1160,7 @@ class AdPlaceholderPage extends StatefulWidget {
 class _AdPlaceholderPageState extends State<AdPlaceholderPage> {
   int _countdown = 3;
   bool _isLoading = true;
+  bool _canSkip = false;
   String? _reading;
   String? _character;
   String? _errorMessage;
@@ -1173,14 +1174,19 @@ class _AdPlaceholderPageState extends State<AdPlaceholderPage> {
 
   void _startCountdown() {
     Future.delayed(const Duration(seconds: 1), () {
-      if (mounted && _countdown > 0) {
+      if (mounted) {
         setState(() {
           _countdown--;
         });
         if (_countdown > 0) {
           _startCountdown();
         } else {
-          _navigateToResult();
+          setState(() {
+            _canSkip = true;
+          });
+          if (!_isLoading) {
+            _navigateToResult();
+          }
         }
       }
     });
@@ -1208,6 +1214,9 @@ class _AdPlaceholderPageState extends State<AdPlaceholderPage> {
             _character = data['character'] ?? widget.persona.nameKo;
             _isLoading = false;
           });
+          if (_canSkip) {
+            _navigateToResult();
+          }
         }
       } else {
         throw Exception('API 오류: ${response.statusCode}');
@@ -1245,7 +1254,7 @@ class _AdPlaceholderPageState extends State<AdPlaceholderPage> {
   }
 
   void _skipAd() {
-    if (!_isLoading) {
+    if (_canSkip && !_isLoading) {
       _navigateToResult();
     }
   }
@@ -1281,32 +1290,33 @@ class _AdPlaceholderPageState extends State<AdPlaceholderPage> {
               ),
             ),
             const SizedBox(height: 32),
-            if (_isLoading)
-              const CircularProgressIndicator(color: Colors.white)
-            else if (_countdown > 0)
-              Column(
-                children: [
-                  Text(
-                    '$_countdown',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 48,
-                      fontWeight: FontWeight.bold,
-                    ),
+            Column(
+              children: [
+                Text(
+                  _countdown > 0 ? '$_countdown' : 'Ready!',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 48,
+                    fontWeight: FontWeight.bold,
                   ),
-                  const SizedBox(height: 16),
+                ),
+                const SizedBox(height: 24),
+                if (_isLoading)
+                  const CircularProgressIndicator(color: Colors.white70, strokeWidth: 3)
+                else if (_canSkip)
                   TextButton(
                     onPressed: _skipAd,
                     child: const Text(
                       'Skip',
                       style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 16,
+                        color: Colors.white,
+                        fontSize: 18,
+                        decoration: TextDecoration.underline,
                       ),
                     ),
                   ),
-                ],
-              ),
+              ],
+            ),
           ],
         ),
       ),
@@ -1623,6 +1633,7 @@ class FollowUpAdPage extends StatefulWidget {
 class _FollowUpAdPageState extends State<FollowUpAdPage> {
   int _countdown = 3;
   bool _isLoading = true;
+  bool _canSkip = false;
   String? _reading;
   String? _character;
   String? _errorMessage;
@@ -1636,14 +1647,19 @@ class _FollowUpAdPageState extends State<FollowUpAdPage> {
 
   void _startCountdown() {
     Future.delayed(const Duration(seconds: 1), () {
-      if (mounted && _countdown > 0) {
+      if (mounted) {
         setState(() {
           _countdown--;
         });
         if (_countdown > 0) {
           _startCountdown();
         } else {
-          _navigateToResult();
+          setState(() {
+            _canSkip = true;
+          });
+          if (!_isLoading) {
+            _navigateToResult();
+          }
         }
       }
     });
@@ -1672,6 +1688,9 @@ class _FollowUpAdPageState extends State<FollowUpAdPage> {
             _character = data['character'] ?? widget.persona.nameKo;
             _isLoading = false;
           });
+          if (_canSkip) {
+            _navigateToResult();
+          }
         }
       } else {
         throw Exception('API 오류: ${response.statusCode}');
@@ -1710,7 +1729,7 @@ class _FollowUpAdPageState extends State<FollowUpAdPage> {
   }
 
   void _skipAd() {
-    if (!_isLoading) {
+    if (_canSkip && !_isLoading) {
       _navigateToResult();
     }
   }
@@ -1746,32 +1765,33 @@ class _FollowUpAdPageState extends State<FollowUpAdPage> {
               ),
             ),
             const SizedBox(height: 32),
-            if (_isLoading)
-              const CircularProgressIndicator(color: Colors.white)
-            else if (_countdown > 0)
-              Column(
-                children: [
-                  Text(
-                    '$_countdown',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 48,
-                      fontWeight: FontWeight.bold,
-                    ),
+            Column(
+              children: [
+                Text(
+                  _countdown > 0 ? '$_countdown' : 'Ready!',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 48,
+                    fontWeight: FontWeight.bold,
                   ),
-                  const SizedBox(height: 16),
+                ),
+                const SizedBox(height: 24),
+                if (_isLoading)
+                  const CircularProgressIndicator(color: Colors.white70, strokeWidth: 3)
+                else if (_canSkip)
                   TextButton(
                     onPressed: _skipAd,
                     child: const Text(
                       'Skip',
                       style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 16,
+                        color: Colors.white,
+                        fontSize: 18,
+                        decoration: TextDecoration.underline,
                       ),
                     ),
                   ),
-                ],
-              ),
+              ],
+            ),
           ],
         ),
       ),
