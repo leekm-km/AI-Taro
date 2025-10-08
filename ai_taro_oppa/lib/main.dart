@@ -986,7 +986,7 @@ class _CardSelectionPageState extends State<CardSelectionPage>
                       final radius = constraints.maxWidth * 0.42;
                       
                       final x = (constraints.maxWidth / 2) + (radius * sin(radians)) - (cardWidth / 2);
-                      final y = constraints.maxHeight - (radius * cos(radians)) - (cardHeight / 2) + 80;
+                      final y = 80 + (radius * (1 - cos(radians)));
 
                       final isHovered = _hoveredIndex == index;
                       final isSelected = _selectedIndices.contains(index);
